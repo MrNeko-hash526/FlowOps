@@ -106,19 +106,44 @@ export function UserManagement() {
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
+  const [sortColumn, setSortColumn] = useState<keyof User | null>(null)
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
+  const [showAddUser, setShowAddUser] = useState(false)
 
   const filteredUsers = mockUsers.filter(
     (user) =>
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()),
   )
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    if (!sortColumn) return 0
+    const aValue = a[sortColumn]
+    const bValue = b[sortColumn]
+    if (typeof aValue === "string" && typeof bValue === "string") {
+      return sortDirection === "asc"
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue)
+    }
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortDirection === "asc" ? aValue - bValue : bValue - aValue
+    }
+    return 0
+  })
 
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
+  // Sorting handler
+  const handleSort = (column: keyof User) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+    } else {
+      setSortColumn(column)
+      setSortDirection("asc")
+    }
+  }
+
+  const totalPages = Math.ceil(sortedUsers.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
-  const currentUsers = filteredUsers.slice(startIndex, endIndex)
-  const [showAddUser, setShowAddUser] = useState(false)
-  // ...existing state and logic...
+  const currentUsers = sortedUsers.slice(startIndex, endIndex)
 
   if (showAddUser) {
     return <UserRegistration />
@@ -164,7 +189,7 @@ export function UserManagement() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
-              <TableHeader>
+              {/* <TableHeader>
                 <TableRow className="bg-blue-900 hover:bg-blue-900">
                   <TableHead className="text-white font-semibold text-center w-16">#</TableHead>
                   <TableHead className="text-white font-semibold">Name</TableHead>
@@ -175,6 +200,59 @@ export function UserManagement() {
                   <TableHead className="text-white font-semibold text-center">Code</TableHead>
                   <TableHead className="text-white font-semibold text-center">Company Status</TableHead>
                   <TableHead className="text-white font-semibold text-center">User Status</TableHead>
+                </TableRow>
+              </TableHeader> */}
+              <TableHeader>
+                <TableRow className="bg-blue-900 hover:bg-blue-900">
+                  <TableHead className="text-white font-semibold text-center w-16">#</TableHead>
+                  <TableHead
+                    className="text-white font-semibold cursor-pointer"
+                    onClick={() => handleSort("name")}
+                  >
+                    Name {sortColumn === "name" && (sortDirection === "asc" ? "▲" : "▼")}
+                  </TableHead>
+                  <TableHead
+                    className="text-white font-semibold cursor-pointer"
+                    onClick={() => handleSort("email")}
+                  >
+                    Email {sortColumn === "email" && (sortDirection === "asc" ? "▲" : "▼")}
+                  </TableHead>
+                  <TableHead
+                    className="text-white font-semibold text-center cursor-pointer"
+                    onClick={() => handleSort("phoneNo")}
+                  >
+                    Phone No. {sortColumn === "phoneNo" && (sortDirection === "asc" ? "▲" : "▼")}
+                  </TableHead>
+                  <TableHead
+                    className="text-white font-semibold text-center cursor-pointer"
+                    onClick={() => handleSort("userType")}
+                  >
+                    User Type {sortColumn === "userType" && (sortDirection === "asc" ? "▲" : "▼")}
+                  </TableHead>
+                  <TableHead
+                    className="text-white font-semibold cursor-pointer"
+                    onClick={() => handleSort("userGroup")}
+                  >
+                    User Group {sortColumn === "userGroup" && (sortDirection === "asc" ? "▲" : "▼")}
+                  </TableHead>
+                  <TableHead
+                    className="text-white font-semibold text-center cursor-pointer"
+                    onClick={() => handleSort("code")}
+                  >
+                    Code {sortColumn === "code" && (sortDirection === "asc" ? "▲" : "▼")}
+                  </TableHead>
+                  <TableHead
+                    className="text-white font-semibold text-center cursor-pointer"
+                    onClick={() => handleSort("companyStatus")}
+                  >
+                    Company Status {sortColumn === "companyStatus" && (sortDirection === "asc" ? "▲" : "▼")}
+                  </TableHead>
+                  <TableHead
+                    className="text-white font-semibold text-center cursor-pointer"
+                    onClick={() => handleSort("userStatus")}
+                  >
+                    User Status {sortColumn === "userStatus" && (sortDirection === "asc" ? "▲" : "▼")}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

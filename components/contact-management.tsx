@@ -96,16 +96,60 @@ export function ContactManagement() {
       contact.emailId.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
-  const totalPages = Math.ceil(filteredContacts.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
+
+
   const currentContacts = filteredContacts.slice(startIndex, endIndex)
-  const [showAddUser, setShowAddUser] = useState(false)
-    // ...existing state and logic...
-  
-    if (showAddUser) {
-      return <ContactRegistration />
+
+
+  const [sortColumn, setSortColumn] = useState<keyof Contact | null>(null)
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
+
+
+  const filteredUsers = mockContacts.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.emailId.toLowerCase().includes(searchTerm.toLowerCase()),
+  )
+
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    if (!sortColumn) return 0
+    const aValue = a[sortColumn]
+    const bValue = b[sortColumn]
+    if (typeof aValue === "string" && typeof bValue === "string") {
+      return sortDirection === "asc"
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue)
     }
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortDirection === "asc" ? aValue - bValue : bValue - aValue
+    }
+    return 0
+  })
+
+  const currentUsers = sortedUsers.slice(startIndex, endIndex)
+  const totalPages = Math.ceil(sortedUsers.length / itemsPerPage)
+
+
+  // Sorting handler
+  const handleSort = (column: keyof Contact) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+    } else {
+      setSortColumn(column)
+      setSortDirection("asc")
+    }
+  }
+
+
+
+  const [showAddUser, setShowAddUser] = useState(false)
+  // ...existing state and logic...
+
+  if (showAddUser) {
+    return <ContactRegistration />
+  }
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}
@@ -152,7 +196,7 @@ export function ContactManagement() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
-              <TableHeader>
+              {/* <TableHeader>
                 <TableRow className="bg-blue-900 hover:bg-blue-900">
                   <TableHead className="text-white font-semibold text-center w-16">#</TableHead>
                   <TableHead className="text-white font-semibold">Name</TableHead>
@@ -163,8 +207,72 @@ export function ContactManagement() {
                   <TableHead className="text-white font-semibold text-center">Pipeway Status</TableHead>
                   <TableHead className="text-white font-semibold text-center">Actions</TableHead>
                 </TableRow>
+              </TableHeader> */}
+
+              <TableHeader>
+                <TableRow className="bg-blue-900 hover:bg-blue-900">
+                  <TableHead className="text-white font-semibold text-center w-16">#</TableHead>
+                  <TableHead
+                    className="text-white font-semibold cursor-pointer"
+                    onClick={() => handleSort("name")}
+                  >
+                    Name {sortColumn === "name" && (sortDirection === "asc" ? "▲" : "▼")}
+                  </TableHead>
+                  <TableHead
+                    className="text-white font-semibold cursor-pointer"
+                    onClick={() => handleSort("name")}
+                  >
+                    Type {sortColumn === "name" && (sortDirection === "asc" ? "▲" : "▼")}
+                  </TableHead>
+                  <TableHead
+                    className="text-white font-semibold cursor-pointer"
+                    onClick={() => handleSort("name")}
+                  >
+                    Code {sortColumn === "name" && (sortDirection === "asc" ? "▲" : "▼")}
+                  </TableHead>
+                  <TableHead
+                    className="text-white font-semibold cursor-pointer"
+                    onClick={() => handleSort("emailId")}
+                  >
+                    Email Id {sortColumn === "emailId" && (sortDirection === "asc" ? "▲" : "▼")}
+                  </TableHead>
+
+                  <TableHead
+                    className="text-white font-semibold text-center cursor-pointer"
+                    onClick={() => handleSort("type")}
+                  >
+                    User Type {sortColumn === "type" && (sortDirection === "asc" ? "▲" : "▼")}
+                  </TableHead>
+
+                  <TableHead
+                    className="text-white font-semibold text-center cursor-pointer"
+                    onClick={() => handleSort("code")}
+                  >
+                    Code {sortColumn === "code" && (sortDirection === "asc" ? "▲" : "▼")}
+                  </TableHead>
+                  <TableHead
+                    className="text-white font-semibold text-center cursor-pointer"
+                    onClick={() => handleSort("contactStatus")}
+                  >
+                    contact Status {sortColumn === "contactStatus" && (sortDirection === "asc" ? "▲" : "▼")}
+                  </TableHead>
+                  <TableHead
+                    className="text-white font-semibold text-center cursor-pointer"
+                    onClick={() => handleSort("pipewayStatus")}
+                  >
+                    Pipeway Status{sortColumn === "pipewayStatus" && (sortDirection === "asc" ? "▲" : "▼")}
+                  </TableHead>
+                  <TableHead
+                    className="text-white font-semibold text-center cursor-pointer"
+                  // onClick={() => handleSort("userStatus")}
+                  >
+                    Actions
+                  </TableHead>
+                </TableRow>
               </TableHeader>
-              <TableBody>
+
+
+              {/* <TableBody>
                 {currentContacts.map((contact, index) => (
                   <TableRow key={contact.id} className="hover:bg-gray-50">
                     <TableCell className="text-center font-medium">{startIndex + index + 1}</TableCell>
@@ -216,7 +324,63 @@ export function ContactManagement() {
                     </TableCell>
                   </TableRow>
                 ))}
+              </TableBody> */}
+
+              {/* Table Body */}
+              <TableBody>
+                {currentUsers.map((contact, index) => (
+                  <TableRow key={contact.id} className="hover:bg-gray-50">
+                    <TableCell className="text-center font-medium">{startIndex + index + 1}</TableCell>
+                    <TableCell className="font-medium">{contact.name}</TableCell>
+                    <TableCell className="text-center">{contact.type}</TableCell>
+                    <TableCell className="text-center">{contact.code}</TableCell>
+                    <TableCell>{contact.emailId}</TableCell>
+                    <TableCell className="text-center">
+                      <Badge
+                        variant={contact.contactStatus === "Active" ? "default" : "secondary"}
+                        className={
+                          contact.contactStatus === "Active"
+                            ? "bg-green-100 text-green-800 hover:bg-green-100"
+                            : "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                        }
+                      >
+                        {contact.contactStatus}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge
+                        variant={contact.pipewayStatus === "Active" ? "default" : "secondary"}
+                        className={
+                          contact.pipewayStatus === "Active"
+                            ? "bg-green-100 text-green-800 hover:bg-green-100"
+                            : "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                        }
+                      >
+                        {contact.pipewayStatus}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-green-600 hover:text-green-800 hover:bg-green-50"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
+
             </Table>
           </div>
 
