@@ -43,8 +43,13 @@ export function ContactRegistration() {
     group: "",
     report: "",
   })
-
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    console.log("Form submitted ✅", formData)
+    alert("🚀 Contact Registered Successfully!")
+  }
   return (
+
     <div className="max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -57,13 +62,13 @@ export function ContactRegistration() {
         <CardContent className="p-8">
           <form className="space-y-6">
             {/* Type and Existing Contacts */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
                 <Label htmlFor="type" className="text-sm font-medium text-gray-700">
                   Type: <span className="text-red-500">*</span>
                 </Label>
                 <Select>
-                  <SelectTrigger className="h-10">
+                  <SelectTrigger className="h-10 w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -72,12 +77,12 @@ export function ContactRegistration() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label htmlFor="existing-contacts" className="text-sm font-medium text-gray-700">
                   Existing Contacts:
                 </Label>
                 <Select>
-                  <SelectTrigger className="h-10">
+                  <SelectTrigger className="h-10 w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -89,7 +94,22 @@ export function ContactRegistration() {
             </div>
 
             {/* Personal Information Row */}
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="pronouns" className="text-sm font-medium text-gray-700">
+                  Pronouns:
+                </Label>
+                <Select>
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="he/him">He/Him</SelectItem>
+                    <SelectItem value="she/her">She/Her</SelectItem>
+                    <SelectItem value="they/them">They/Them</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
                   First Name: <span className="text-red-500">*</span>
@@ -166,25 +186,11 @@ export function ContactRegistration() {
               </div>
             </div>
 
-            {/* Second Row with Pronouns */}
+            {/* Second Row with Pronouns
             <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="pronouns" className="text-sm font-medium text-gray-700">
-                  Pronouns:
-                </Label>
-                <Select>
-                  <SelectTrigger className="h-10">
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="he/him">He/Him</SelectItem>
-                    <SelectItem value="she/her">She/Her</SelectItem>
-                    <SelectItem value="they/them">They/Them</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+
               <div className="md:col-span-5"></div>
-            </div>
+            </div> */}
 
             {/* Contact Information */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -494,10 +500,35 @@ export function ContactRegistration() {
                   />
                 </div>
               </div>
+
             </div>
+            {/* Submit Button */}
+            {/* <div className="flex justify-center pt-6">
+              <Button
+                type="submit"
+                className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 
+                           hover:scale-105 active:scale-95 transition-transform 
+                           shadow-lg text-white px-8 py-3 rounded-xl font-semibold 
+                           animate-pulse"
+              >
+                Register Contact
+              </Button>
+            </div> */}
           </form>
+          {/* <Button className="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2">Contact Register</Button> */}
         </CardContent>
       </Card>
     </div>
+
+
+
+
+
+
+
+
+
+
+
   )
 }

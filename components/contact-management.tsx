@@ -1,5 +1,5 @@
 "use client"
-
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -88,7 +88,7 @@ export function ContactManagement() {
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 8
-
+  const router = useRouter()
   const filteredContacts = mockContacts.filter(
     (contact) =>
       contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -115,7 +115,14 @@ export function ContactManagement() {
             <span className="text-blue-600">👁 View Contact</span>
           </nav>
         </div>
-        <Button className="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2">Contact Register</Button>
+        {/* <Button className="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2">Contact Register</Button> */}
+        <Button
+          className="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2"
+          onClick={() => router.push("/contact-registration")}
+        >
+          Contact Register
+        </Button>
+
       </div>
 
       {/* Search and Controls */}
