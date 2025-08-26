@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
 import { CalendarDays } from "lucide-react"
+import { ContactManagement } from "./contact-management"
 
 export function ContactRegistration() {
   const [formData, setFormData] = useState({
@@ -48,6 +49,12 @@ export function ContactRegistration() {
     console.log("Form submitted ✅", formData)
     alert("🚀 Contact Registered Successfully!")
   }
+  const [showAddUser, setShowAddUser] = useState(false)
+  // ...existing state and logic...
+
+  if (showAddUser) {
+    return <ContactManagement />
+  }
   return (
 
     <div className="max-w-7xl mx-auto">
@@ -55,7 +62,11 @@ export function ContactRegistration() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">CONTACT REGISTRATION</h1>
         </div>
-        <Button className="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2">Contact Register</Button>
+        <Button
+          className="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2"
+          onClick={() => setShowAddUser(true)}
+        >
+          View Registeration</Button>
       </div>
 
       <Card className="shadow-lg border-0">
@@ -503,7 +514,7 @@ export function ContactRegistration() {
 
             </div>
             {/* Submit Button */}
-            {/* <div className="flex justify-center pt-6">
+            <div className="flex justify-center pt-6">
               <Button
                 type="submit"
                 className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 
@@ -513,7 +524,7 @@ export function ContactRegistration() {
               >
                 Register Contact
               </Button>
-            </div> */}
+            </div>
           </form>
           {/* <Button className="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2">Contact Register</Button> */}
         </CardContent>
