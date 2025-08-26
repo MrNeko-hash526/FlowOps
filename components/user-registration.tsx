@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
+import { UserManagement } from "./user-management"
 
 export function UserRegistration() {
   const [formData, setFormData] = useState({
@@ -33,7 +34,12 @@ export function UserRegistration() {
       userGroup: "None Selected",
     })
   }
+  const [showAddUser, setShowAddUser] = useState(false)
+  // ...existing state and logic...
 
+  if (showAddUser) {
+    return <UserManagement />
+  }
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
@@ -48,7 +54,10 @@ export function UserRegistration() {
             <span className="text-blue-600">👤 Register</span>
           </nav>
         </div>
-        <Button className="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2">View User</Button>
+        <Button
+          className="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2"
+          onClick={() => setShowAddUser(true)}
+        >View User</Button>
       </div>
 
       <Card className="shadow-lg border-0">
@@ -61,7 +70,7 @@ export function UserRegistration() {
                   Type: <span className="text-red-500">*</span>
                 </Label>
                 <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
-                  <SelectTrigger className="h-10">
+                  <SelectTrigger className="h-10 w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -78,7 +87,7 @@ export function UserRegistration() {
                   value={formData.existingContacts}
                   onValueChange={(value) => setFormData({ ...formData, existingContacts: value })}
                 >
-                  <SelectTrigger className="h-10">
+                  <SelectTrigger className="h-10 w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -127,7 +136,7 @@ export function UserRegistration() {
                   id="email"
                   type="email"
                   placeholder="Email *"
-                  className="h-10"
+                  className="h-10 w-full"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
@@ -171,7 +180,7 @@ export function UserRegistration() {
                   Role: <span className="text-red-500">*</span>
                 </Label>
                 <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
-                  <SelectTrigger className="h-10">
+                  <SelectTrigger className="h-10 w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>

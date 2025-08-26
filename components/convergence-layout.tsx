@@ -65,9 +65,8 @@ export function ConvergenceLayout({ children }: ConvergenceLayoutProps) {
     return (
       <div key={item.id}>
         <div
-          className={`flex items-center justify-between px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 ${
-            activeModule === item.id ? "bg-blue-50 text-blue-600 border-r-2 border-blue-600" : "text-gray-700"
-          }`}
+          className={`flex items-center justify-between px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 ${activeModule === item.id ? "bg-blue-50 text-blue-600 border-r-2 border-blue-600" : "text-gray-700"
+            }`}
           style={{ paddingLeft }}
           onClick={() => {
             if (hasChildren) {
@@ -93,9 +92,9 @@ export function ConvergenceLayout({ children }: ConvergenceLayoutProps) {
       case "view-contact":
         return <ContactManagement />
       case "manage-user":
-        return <UserRegistration />
-      case "user-management":
         return <UserManagement />
+      case "user-management":
+        return <UserRegistration />
       case "my-uploads":
         return <MyUploads />
       case "my-downloads":

@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Search } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { UserRegistration } from "./user-registration"
+
 
 interface User {
   id: number
@@ -115,9 +117,14 @@ export function UserManagement() {
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
   const currentUsers = filteredUsers.slice(startIndex, endIndex)
+  const [showAddUser, setShowAddUser] = useState(false)
+  // ...existing state and logic...
 
+  if (showAddUser) {
+    return <UserRegistration />
+  }
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
@@ -131,7 +138,10 @@ export function UserManagement() {
             <span className="text-blue-600">👁 View</span>
           </nav>
         </div>
-        <Button className="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2">Add User</Button>
+        <Button
+          className="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2"
+          onClick={() => setShowAddUser(true)}
+        >Add User</Button>
       </div>
 
       {/* Search */}
