@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,6 +12,16 @@ export default function LoginPage() {
     username: "",
     password: ""
   })
+  const [selection, setSelection] = useState<{ orgCode?: string; role?: string } | null>(null)
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("authSelection")
+      if (raw) setSelection(JSON.parse(raw))
+    } catch (err) {
+      // ignore
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,9 +33,9 @@ export default function LoginPage() {
     console.log("Login attempt:", formData)
     setIsLoading(false)
     
-    // Here you would handle the actual login logic
-    // For now, redirect to dashboard page
-    window.location.href = "/dashboard"
+  // Here you would handle the actual login logic
+  // For now, redirect to access-selection page
+  window.location.href = "/auth"
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,6 +56,8 @@ export default function LoginPage() {
           </div>
 
           {/* Form */}
+          {/* org/role selection intentionally not displayed here */}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Username Field */}
             <div className="relative">
