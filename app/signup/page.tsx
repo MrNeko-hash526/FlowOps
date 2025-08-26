@@ -13,14 +13,27 @@ export default function SignUpPage() {
     password: "",
     confirmPassword: ""
   })
+  const [errors, setErrors] = useState<{
+    firstName?: string
+    lastName?: string
+    email?: string
+    password?: string
+    confirmPassword?: string
+  }>({})
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    
     // Basic validation
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match")
+  const newErrors: typeof errors = {}
+  if (!formData.firstName) newErrors.firstName = "First name is required"
+  if (!formData.lastName) newErrors.lastName = "Last name is required"
+  if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(formData.email)) newErrors.email = "Please enter a valid email"
+  if (!formData.password) newErrors.password = "Password is required"
+  if (!formData.confirmPassword) newErrors.confirmPassword = "Confirm password is required"
+  else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match"
+    setErrors(newErrors)
+    if (Object.keys(newErrors).length > 0) {
       setIsLoading(false)
       return
     }
@@ -124,6 +137,7 @@ export default function SignUpPage() {
                     </svg>
                   </div>
                 )}
+                {errors.lastName && <p className="mt-1 text-xs text-red-500">{errors.lastName}</p>}
               </div>
             </div>
 
@@ -164,6 +178,7 @@ export default function SignUpPage() {
                   </svg>
                 </div>
               )}
+              {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
             </div>
 
             {/* Password Field */}
@@ -203,6 +218,7 @@ export default function SignUpPage() {
                   </svg>
                 </div>
               )}
+              {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password}</p>}
             </div>
 
             {/* Confirm Password Field */}
@@ -242,6 +258,7 @@ export default function SignUpPage() {
                   </svg>
                 </div>
               )}
+              {errors.confirmPassword && <p className="mt-1 text-xs text-red-500">{errors.confirmPassword}</p>}
             </div>
 
             {/* Sign Up Button */}
