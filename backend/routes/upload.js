@@ -31,6 +31,15 @@ const upload = multer({
 })
 
 // Accept multiple files in field 'files' and normal form fields
-router.post('/submit', upload.array('files'), uploadController.submitForm)
+router.post('/submit', upload.single('files'), (req, res) => {
+  const files = req.file ? [{
+    originalName: req.file.originalname,
+    filename: req.file.filename,
+    path: req.file.path,
+    size: req.file.size
+  }] : [];
+
+  uploadController.submitForm(req, res, files)
+})
 
 module.exports = router

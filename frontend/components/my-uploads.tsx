@@ -19,12 +19,66 @@ export function MyUploads() {
   })
 
   const [totalSize, setTotalSize] = useState(0)
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState("")
+  const [uploadSuccess, setUploadSuccess] = useState("")
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
       setFormData({ ...formData, selectedFile: file })
       setTotalSize(Math.round(file.size / 1024)) // Convert to KB
+    }
+  }
+
+  const handleUpload = async () => {
+    setUploadError("")
+    setUploadSuccess("")
+    if (!formData.subject || !formData.type || !formData.selectedFile) {
+      setUploadError("Please fill all required fields and select a file.")
+      return
+    }
+    if (formData.selectedFile.size > 30 * 1024 * 1024) {
+      setUploadError("File size exceeds 30 MB limit.")
+      return
+    }
+    setUploading(true)
+    try {
+      const data = new FormData()
+      data.append("subject", formData.subject)
+      data.append("type", formData.type)
+      data.append("description", formData.description)
+      data.append("file", formData.selectedFile)
+      data.append("submissionId", "test123") // <-- Add this line
+
+      const response = await fetch("http://localhost:5000/api/upload/submit", {
+        method: "POST",
+        body: data,
+      })
+
+      if (!response.ok) {
+        let errorMsg = "Upload failed."
+        try {
+          const errorData = await response.json()
+          errorMsg = errorData.error || errorData.message || errorMsg
+        } catch {
+          errorMsg = "Server error or invalid endpoint."
+        }
+        throw new Error(errorMsg)
+      }
+
+      setUploadSuccess("Upload successful!")
+      setFormData({
+        subject: "",
+        type: "",
+        description: "",
+        selectedFile: null,
+      })
+      setTotalSize(0)
+    } catch (err: any) {
+      setUploadError(err.message)
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -47,7 +101,7 @@ export function MyUploads() {
 
       <Card className="shadow-lg border-0">
         <CardContent className="p-8">
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={e => e.preventDefault()}>
             {/* Subject and Type */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="space-y-2">
@@ -139,9 +193,16 @@ export function MyUploads() {
                     {formData.selectedFile ? formData.selectedFile.name : "No file chosen"}
                   </span>
                 </div>
-                <Button type="button" className="bg-blue-900 hover:bg-blue-800 text-white px-8 py-2">
-                  Upload
+                <Button
+                  type="button"
+                  className="bg-blue-900 hover:bg-blue-800 text-white px-8 py-2"
+                  onClick={handleUpload}
+                  disabled={uploading}
+                >
+                  {uploading ? "Uploading..." : "Upload"}
                 </Button>
+                {uploadError && <div className="text-red-600 text-sm">{uploadError}</div>}
+                {uploadSuccess && <div className="text-green-600 text-sm">{uploadSuccess}</div>}
               </div>
             </div>
 
