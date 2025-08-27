@@ -1,12 +1,13 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { ConvergenceLogo } from "@/components/convergence-logo"
 import Link from "next/link"
+import { organizations, roles, Option } from "../../lib/auth-config"
 
 export default function AuthSelectionPage() {
-  const [orgCode, setOrgCode] = useState("")
-  const [role, setRole] = useState<"firm" | "acca">("firm")
+  const [orgCode, setOrgCode] = useState<string>("")
+  const [role, setRole] = useState<string>("")
   const [remember, setRemember] = useState(true)
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -23,6 +24,20 @@ export default function AuthSelectionPage() {
     }
   }
 
+  // prefill if saved
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("authSelection")
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        if (parsed.orgCode) setOrgCode(parsed.orgCode)
+        if (parsed.role) setRole(parsed.role)
+      }
+    } catch (err) {
+      // ignore
+    }
+  }, [])
+
   return (
     <div className="auth-gradient-bg flex items-center justify-center p-4 min-h-screen">
       <div className="w-full max-w-md animate-[slideDown_0.6s_ease-out]">
@@ -36,44 +51,33 @@ export default function AuthSelectionPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="text-xs font-medium text-gray-600">Organization</label>
-              <div className="mt-2 grid grid-cols-2 gap-3">
-                {[
-                  { id: "acme-01", label: "ACME-01" },
-                  { id: "flowops", label: "FlowOps" },
-                  { id: "acaa", label: "ACAA" },
-                  { id: "north-01", label: "North-01" },
-                ].map((opt) => (
-                  <label
-                    key={opt.id}
-                    className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl cursor-pointer border w-full justify-center text-sm font-medium ${
-                      orgCode === opt.id ? "bg-blue-50 border-blue-300" : "bg-white border-gray-200"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="orgCode"
-                      value={opt.id}
-                      checked={orgCode === opt.id}
-                      onChange={() => setOrgCode(opt.id)}
-                      className="hidden"
-                    />
-                    <span>{opt.label}</span>
-                  </label>
-                ))}
+              <div className="mt-2">
+                <select
+                  value={orgCode}
+                  onChange={(e) => setOrgCode(e.target.value)}
+                  className="w-full py-2.5 pl-3 pr-8 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-700 focus:outline-none focus:border-blue-400 transition-all duration-150"
+                >
+                  <option value="">Select organization</option>
+                  {organizations.map((o: Option) => (
+                    <option key={o.id} value={o.id}>{o.label}</option>
+                  ))}
+                </select>
               </div>
             </div>
 
             <div>
               <label className="text-xs font-medium text-gray-600">Login as</label>
-              <div className="mt-2 flex items-center gap-4">
-                <label className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl cursor-pointer border ${role === "firm" ? "bg-blue-50 border-blue-300" : "bg-white border-gray-200"}`}>
-                  <input type="radio" name="role" value="firm" checked={role === "firm"} onChange={() => setRole("firm")} className="hidden" />
-                  <span className="text-sm font-medium">Firm</span>
-                </label>
-                <label className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl cursor-pointer border ${role === "acca" ? "bg-blue-50 border-blue-300" : "bg-white border-gray-200"}`}>
-                  <input type="radio" name="role" value="acca" checked={role === "acca"} onChange={() => setRole("acca")} className="hidden" />
-                  <span className="text-sm font-medium">ACCA</span>
-                </label>
+              <div className="mt-2">
+                <select
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="w-full py-2.5 pl-3 pr-8 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-700 focus:outline-none focus:border-blue-400 transition-all duration-150"
+                >
+                  <option value="">Select login as</option>
+                  {roles.map((r: Option) => (
+                    <option key={r.id} value={r.id}>{r.label}</option>
+                  ))}
+                </select>
               </div>
             </div>
 

@@ -9,9 +9,10 @@ import { ConvergenceLogo } from "@/components/convergence-logo"
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
-    username: "",
+    email: "",
     password: ""
   })
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
   const [selection, setSelection] = useState<{ orgCode?: string; role?: string } | null>(null)
 
   useEffect(() => {
@@ -25,15 +26,19 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    console.log("Login attempt:", formData)
-    setIsLoading(false)
-    
-  // Here you would handle the actual login logic
+  // validate
+  const newErrors: typeof errors = {}
+  if (!validateEmail(formData.email)) newErrors.email = "Please enter a valid email"
+  if (!formData.password) newErrors.password = "Password is required"
+  setErrors(newErrors)
+  if (Object.keys(newErrors).length > 0) return
+
+  setIsLoading(true)
+  // Simulate API call
+  await new Promise((resolve) => setTimeout(resolve, 1200))
+  console.log("Login attempt:", formData)
+  setIsLoading(false)
+
   // For now, redirect to access-selection page
   window.location.href = "/auth"
   }
@@ -43,6 +48,11 @@ export default function LoginPage() {
       ...prev,
       [e.target.name]: e.target.value
     }))
+  }
+
+  function validateEmail(email: string) {
+  // improved but still conservative regex: ensures local@domain.tld (2+ tld)
+  return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email)
   }
 
   return (
@@ -73,16 +83,16 @@ export default function LoginPage() {
                 </svg>
               </div>
               <input
-                type="text"
-                name="username"
-                placeholder="User name"
-                value={formData.username}
+                type="email"
+                name="email"
+                placeholder="Email address"
+                value={formData.email}
                 onChange={handleInputChange}
                 required
                 disabled={isLoading}
                 className="w-full pl-10 pr-10 py-3 bg-blue-50 border-2 border-blue-200 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all duration-200"
               />
-              {formData.username && (
+              {formData.email && (
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                   <svg 
                     className="w-4 h-4 text-red-400 cursor-pointer hover:text-red-600" 
@@ -90,12 +100,13 @@ export default function LoginPage() {
                     strokeWidth="2" 
                     stroke="currentColor" 
                     viewBox="0 0 24 24"
-                    onClick={() => setFormData(prev => ({ ...prev, username: "" }))}
+                    onClick={() => setFormData(prev => ({ ...prev, email: "" }))}
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </div>
               )}
+              {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
             </div>
 
             {/* Password Field */}
@@ -135,6 +146,7 @@ export default function LoginPage() {
                   </svg>
                 </div>
               )}
+              {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password}</p>}
             </div>
 
             {/* Login Button */}
