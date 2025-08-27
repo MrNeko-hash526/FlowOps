@@ -1,9 +1,9 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { ConvergenceLogo } from "@/frontend/components/convergence-logo"
+import { ConvergenceLogo } from "@/components/convergence-logo"
 import Link from "next/link"
-import { organizations, roles, Option } from "../../lib/auth-config"
+import { organizations, roles, Option } from "@/lib/auth-config"
 
 export default function AuthSelectionPage() {
   const [orgCode, setOrgCode] = useState<string>("")

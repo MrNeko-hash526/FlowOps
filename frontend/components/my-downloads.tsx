@@ -1,15 +1,16 @@
 "use client"
 
+import React from "react"
 import { useState } from "react"
-import { Button } from "@/frontend/components/ui/button"
-import { Input } from "@/frontend/components/ui/input"
-import { Label } from "@/frontend/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/frontend/components/ui/select"
-import { Card, CardContent } from "@/frontend/components/ui/card"
-import { RadioGroup, RadioGroupItem } from "@/frontend/components/ui/radio-group"
-import { Checkbox } from "@/frontend/components/ui/checkbox"
+import { Button } from "./ui/button"
+import { Input } from "./ui/input"
+import { Label } from "./ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { Card, CardContent } from "./ui/card"
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group"
+import { Checkbox } from "./ui/checkbox"
 import { Download, Search } from "lucide-react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/frontend/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 
 interface FileItem {
   id: number

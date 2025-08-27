@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ConvergenceLogo } from "@/frontend/components/convergence-logo"
+import { ConvergenceLogo } from "@/components/convergence-logo"
 
 export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false)

@@ -1,7 +1,7 @@
 "use client"
 
-import { ConvergenceLayout } from "@/frontend/components/convergence-layout"
-import chartRegistry from "@/frontend/components/charts"
+import { ConvergenceLayout } from "@/components/convergence-layout"
+import chartRegistry from "@/components/charts"
 import React from "react"
 
 export default function DashboardPage() {

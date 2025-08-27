@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Button } from "@/frontend/components/ui/button"
-import { Input } from "@/frontend/components/ui/input"
-import { ConvergenceLogo } from "@/frontend/components/convergence-logo"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { ConvergenceLogo } from "@/components/convergence-logo"
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
