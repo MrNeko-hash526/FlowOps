@@ -1,7 +1,6 @@
 "use client"
 
-import React from "react"
-import { useState } from "react"
+import React, { useState } from "react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
@@ -11,8 +10,42 @@ import { Card, CardContent } from "./ui/card"
 import { CalendarDays } from "lucide-react"
 import { ContactManagement } from "./contact-management"
 
+type ContactFormData = {
+  type: string
+  existingContacts: string
+  firstName: string
+  lastName: string
+  suffix: string
+  title: string
+  status: string
+  goesBy: string
+  pronouns: string
+  emailAddress: string
+  officeNumber: string
+  cellNumber: string
+  addressLine1: string
+  addressLine2: string
+  city: string
+  state: string
+  zip: string
+  dateOfBirth: string
+  workAnniversary: string
+  maritalStatus: string
+  spouseName: string
+  childrensName: string
+  college: string
+  degree: string
+  priorEmployer: string
+  endDate: string
+  notes: string
+  sportsTeam: string
+  favorites: string
+  group: string
+  report: string
+}
+
 export function ContactRegistration() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ContactFormData>({
     type: "",
     existingContacts: "",
     firstName: "",
@@ -45,8 +78,74 @@ export function ContactRegistration() {
     group: "",
     report: "",
   })
+
+  const [error, setError] = useState("")
+  const [invalidField, setInvalidField] = useState<keyof ContactFormData | null>(null)
+
+  const requiredFields: (keyof ContactFormData)[] = [
+    "firstName",
+    "lastName",
+    "emailAddress",
+    "cellNumber",
+    "city",
+    "state",
+    "zip",
+  ]
+
+  const handleReset = () => {
+    setFormData({
+      type: "",
+      existingContacts: "",
+      firstName: "",
+      lastName: "",
+      suffix: "",
+      title: "",
+      status: "Active",
+      goesBy: "",
+      pronouns: "",
+      emailAddress: "",
+      officeNumber: "",
+      cellNumber: "",
+      addressLine1: "",
+      addressLine2: "",
+      city: "",
+      state: "",
+      zip: "",
+      dateOfBirth: "",
+      workAnniversary: "",
+      maritalStatus: "",
+      spouseName: "",
+      childrensName: "",
+      college: "",
+      degree: "",
+      priorEmployer: "",
+      endDate: "",
+      notes: "",
+      sportsTeam: "",
+      favorites: "",
+      group: "",
+      report: "",
+    })
+    setError("")
+    setInvalidField(null)
+  }
+
+  const validateForm = () => {
+    for (const field of requiredFields) {
+      if (!formData[field] || formData[field].trim() === "") {
+        setError(`Please fill in the required field: ${field}`)
+        setInvalidField(field)
+        return false
+      }
+    }
+    setError("")
+    setInvalidField(null)
+    return true
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!validateForm()) return alert("Form Not Valid")
     try {
       const res = await fetch("http://localhost:5000/api/contact/register", {
         method: "POST",
@@ -55,13 +154,14 @@ export function ContactRegistration() {
       })
       const data = await res.json()
       if (res.ok) {
+        handleReset()
         alert("🚀 Contact Registered Successfully!")
-        // Optionally reset form or show success
       } else {
-        alert(data.message || "Registration failed")
+        setError(data.message || "Registration failed")
+        alert("Error")
       }
     } catch (err) {
-      alert("Network error")
+      setError("Network error")
     }
   }
   const [showAddUser, setShowAddUser] = useState(false)
@@ -71,7 +171,6 @@ export function ContactRegistration() {
     return <ContactManagement />
   }
   return (
-
     <div className="max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -81,12 +180,13 @@ export function ContactRegistration() {
           className="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2"
           onClick={() => setShowAddUser(true)}
         >
-          View Registeration</Button>
+          View Registeration
+        </Button>
       </div>
 
       <Card className="shadow-lg border-0">
         <CardContent className="p-8">
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Type and Existing Contacts */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
@@ -146,6 +246,10 @@ export function ContactRegistration() {
                   className="h-10"
                   value={formData.firstName}
                   onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                  style={{
+                    borderColor: invalidField === "firstName" ? "red" : undefined,
+                    borderWidth: invalidField === "firstName" ? "2px" : undefined,
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -158,6 +262,10 @@ export function ContactRegistration() {
                   className="h-10"
                   value={formData.lastName}
                   onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  style={{
+                    borderColor: invalidField === "lastName" ? "red" : undefined,
+                    borderWidth: invalidField === "lastName" ? "2px" : undefined,
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -231,6 +339,10 @@ export function ContactRegistration() {
                   className="h-10"
                   value={formData.emailAddress}
                   onChange={(e) => setFormData({ ...formData, emailAddress: e.target.value })}
+                  style={{
+                    borderColor: invalidField === "emailAddress" ? "red" : undefined,
+                    borderWidth: invalidField === "emailAddress" ? "2px" : undefined,
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -255,6 +367,10 @@ export function ContactRegistration() {
                   className="h-10"
                   value={formData.cellNumber}
                   onChange={(e) => setFormData({ ...formData, cellNumber: e.target.value })}
+                  style={{
+                    borderColor: invalidField === "cellNumber" ? "red" : undefined,
+                    borderWidth: invalidField === "cellNumber" ? "2px" : undefined,
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -307,6 +423,10 @@ export function ContactRegistration() {
                   className="h-10"
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  style={{
+                    borderColor: invalidField === "city" ? "red" : undefined,
+                    borderWidth: invalidField === "city" ? "2px" : undefined,
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -338,6 +458,10 @@ export function ContactRegistration() {
                   className="h-10"
                   value={formData.zip}
                   onChange={(e) => setFormData({ ...formData, zip: e.target.value })}
+                  style={{
+                    borderColor: invalidField === "zip" ? "red" : undefined,
+                    borderWidth: invalidField === "zip" ? "2px" : undefined,
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -426,6 +550,10 @@ export function ContactRegistration() {
                   className="h-10"
                   value={formData.childrensName}
                   onChange={(e) => setFormData({ ...formData, childrensName: e.target.value })}
+                  style={{
+                    borderColor: invalidField === "childrensName" ? "red" : undefined,
+                    borderWidth: invalidField === "childrensName" ? "2px" : undefined,
+                  }}
                 />
               </div>
             </div>
@@ -466,6 +594,10 @@ export function ContactRegistration() {
                   className="h-10"
                   value={formData.priorEmployer}
                   onChange={(e) => setFormData({ ...formData, priorEmployer: e.target.value })}
+                  style={{
+                    borderColor: invalidField === "priorEmployer" ? "red" : undefined,
+                    borderWidth: invalidField === "priorEmployer" ? "2px" : undefined,
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -526,7 +658,6 @@ export function ContactRegistration() {
                   />
                 </div>
               </div>
-
             </div>
             {/* Submit Button */}
             <div className="flex justify-center pt-6">
@@ -537,7 +668,7 @@ export function ContactRegistration() {
                            shadow-lg text-white px-8 py-3 rounded-xl font-semibold 
                            animate-pulse"
               >
-                Register Contact
+                Register
               </Button>
             </div>
           </form>
@@ -545,16 +676,5 @@ export function ContactRegistration() {
         </CardContent>
       </Card>
     </div>
-
-
-
-
-
-
-
-
-
-
-
   )
 }

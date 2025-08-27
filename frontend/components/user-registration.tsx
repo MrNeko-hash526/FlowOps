@@ -1,7 +1,6 @@
 "use client"
 
-import React from "react"
-import { useState } from "react"
+import React, { useState } from "react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
@@ -9,8 +8,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Card, CardContent } from "./ui/card"
 import { UserManagement } from "./user-management"
 
+type UserFormData = {
+  type: string
+  existingContacts: string
+  firstName: string
+  lastName: string
+  email: string
+  confirmEmail: string
+  phoneNo: string
+  role: string
+  userGroup: string
+}
+
 export function UserRegistration() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<UserFormData>({
     type: "",
     existingContacts: "",
     firstName: "",
@@ -42,8 +53,35 @@ export function UserRegistration() {
     setSuccess("")
   }
 
+  // List required fields
+  const requiredFields: (keyof UserFormData)[] = [
+    "type",
+    "firstName",
+    "lastName",
+    "email",
+    "confirmEmail",
+    "role",
+  ]
+
+  // Validation function
+  const validateForm = () => {
+    for (const field of requiredFields) {
+      if (!formData[field] || formData[field].trim() === "") {
+        setError(`Please fill in the required field: ${field}`)
+        return false
+      }
+    }
+    if (formData.email !== formData.confirmEmail) {
+      setError("Email and Confirm Email do not match.")
+      return false
+    }
+    setError("")
+    return true
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!validateForm()) return
     setLoading(true)
     setError("")
     setSuccess("")
@@ -57,8 +95,6 @@ export function UserRegistration() {
       if (res.ok) {
         setSuccess("User registered successfully!")
         handleReset()
-        console.log("success")
-        alert("success")
       } else {
         setError(data.message || "Registration failed")
       }
@@ -91,7 +127,9 @@ export function UserRegistration() {
         <Button
           className="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2"
           onClick={() => setShowAddUser(true)}
-        >View User</Button>
+        >
+          View User
+        </Button>
       </div>
 
       <Card className="shadow-lg border-0">
