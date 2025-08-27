@@ -51,7 +51,7 @@ export function MyUploads() {
       data.append("files", formData.selectedFile)
       data.append("submissionId", "abc123") // <-- Use the real submissionId here
 
-      const response = await fetch("http://localhost:5000/api/form/upload", {
+      const response = await fetch("http://localhost:5000/api/upload", {
         method: "POST",
         body: data,
       });

@@ -1,12 +1,12 @@
 const express = require('express');
 const cors = require('cors')
 const authRoutes = require('./routes/auth')
-const uploadRoutes = require('./routes/upload')
+const uploadRoutes = require('./routes/uploadRoutes.js')
 const formRoutes = require('./routes/form')
 const contactRoutes = require('./routes/contactRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
-
+// duplicate import removed
 // Middleware
 app.use(cors())
 app.use(express.json());
@@ -18,10 +18,8 @@ app.get('/', (req, res) => {
 
 
 
-// Auth routes
+// Routes
 app.use('/api/auth', authRoutes)
-
-// Upload / form submission routes
 app.use('/api/upload', uploadRoutes)
 app.use('/api/form', formRoutes)
 app.use('/api/contact', contactRoutes);
