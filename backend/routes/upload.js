@@ -39,7 +39,7 @@ router.post('/submit', upload.single('files'), (req, res) => {
     size: req.file.size
   }] : [];
 
-  uploadController.submitForm(req, res, files)
+  uploadController.createSubmission(req, res, files)
 })
 
 module.exports = router

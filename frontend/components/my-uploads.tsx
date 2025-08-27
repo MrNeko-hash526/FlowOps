@@ -48,13 +48,14 @@ export function MyUploads() {
       data.append("subject", formData.subject)
       data.append("type", formData.type)
       data.append("description", formData.description)
-      data.append("file", formData.selectedFile)
-      data.append("submissionId", "test123") // <-- Add this line
+      data.append("files", formData.selectedFile)
+      data.append("submissionId", "abc123") // <-- Use the real submissionId here
 
-      const response = await fetch("http://localhost:5000/api/upload/submit", {
+      const response = await fetch("http://localhost:5000/api/form/upload", {
         method: "POST",
         body: data,
-      })
+      });
+
 
       if (!response.ok) {
         let errorMsg = "Upload failed."
