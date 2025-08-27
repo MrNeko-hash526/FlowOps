@@ -1,7 +1,6 @@
 "use client"
 
-import React from "react"
-import { useState } from "react"
+import React, { useState } from "react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
@@ -9,8 +8,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Card, CardContent } from "./ui/card"
 import { UserManagement } from "./user-management"
 
+type UserFormData = {
+  type: string
+  existingContacts: string
+  firstName: string
+  lastName: string
+  email: string
+  confirmEmail: string
+  phoneNo: string
+  role: string
+  userGroup: string
+}
+
 export function UserRegistration() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<UserFormData>({
     type: "",
     existingContacts: "",
     firstName: "",
@@ -21,6 +32,10 @@ export function UserRegistration() {
     role: "",
     userGroup: "None Selected",
   })
+
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
 
   const handleReset = () => {
     setFormData({
@@ -34,7 +49,61 @@ export function UserRegistration() {
       role: "",
       userGroup: "None Selected",
     })
+    setError("")
+    setSuccess("")
   }
+
+  // List required fields
+  const requiredFields: (keyof UserFormData)[] = [
+    "type",
+    "firstName",
+    "lastName",
+    "email",
+    "confirmEmail",
+    "role",
+  ]
+
+  // Validation function
+  const validateForm = () => {
+    for (const field of requiredFields) {
+      if (!formData[field] || formData[field].trim() === "") {
+        setError(`Please fill in the required field: ${field}`)
+        return false
+      }
+    }
+    if (formData.email !== formData.confirmEmail) {
+      setError("Email and Confirm Email do not match.")
+      return false
+    }
+    setError("")
+    return true
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!validateForm()) return
+    setLoading(true)
+    setError("")
+    setSuccess("")
+    try {
+      const res = await fetch("http://localhost:5000/api/form/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setSuccess("User registered successfully!")
+        handleReset()
+      } else {
+        setError(data.message || "Registration failed")
+      }
+    } catch (err: any) {
+      setError("Network error")
+    }
+    setLoading(false)
+  }
+
   const [showAddUser, setShowAddUser] = useState(false)
   // ...existing state and logic...
 
@@ -58,12 +127,14 @@ export function UserRegistration() {
         <Button
           className="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2"
           onClick={() => setShowAddUser(true)}
-        >View User</Button>
+        >
+          View User
+        </Button>
       </div>
 
       <Card className="shadow-lg border-0">
         <CardContent className="p-8">
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Type and Existing Contacts */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -205,6 +276,10 @@ export function UserRegistration() {
                 </Button>
               </div>
             </div>
+
+            {/* Show error/success messages */}
+            {error && <div className="text-red-500 text-center">{error}</div>}
+            {success && <div className="text-green-500 text-center">{success}</div>}
 
             {/* Action Buttons */}
             <div className="flex justify-center gap-4 pt-6">

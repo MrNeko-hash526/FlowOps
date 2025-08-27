@@ -1,7 +1,9 @@
 const express = require('express');
 const cors = require('cors')
 const authRoutes = require('./routes/auth')
-
+const uploadRoutes = require('./routes/upload')
+const formRoutes = require('./routes/form')
+const contactRoutes = require('./routes/contactRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -14,9 +16,15 @@ app.get('/', (req, res) => {
     res.send('Backend server is running!');
 });
 
+
+
 // Auth routes
 app.use('/api/auth', authRoutes)
 
+// Upload / form submission routes
+app.use('/api/upload', uploadRoutes)
+app.use('/api/form', formRoutes)
+app.use('/api/contact', contactRoutes);
 // Start server
 app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
