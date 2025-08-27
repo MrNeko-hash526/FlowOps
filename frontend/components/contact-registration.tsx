@@ -1,6 +1,7 @@
 "use client"
 
-import React, { useState } from "react"
+import React from "react"
+import { useState } from "react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
@@ -10,42 +11,8 @@ import { Card, CardContent } from "./ui/card"
 import { CalendarDays } from "lucide-react"
 import { ContactManagement } from "./contact-management"
 
-type ContactFormData = {
-  type: string
-  existingContacts: string
-  firstName: string
-  lastName: string
-  suffix: string
-  title: string
-  status: string
-  goesBy: string
-  pronouns: string
-  emailAddress: string
-  officeNumber: string
-  cellNumber: string
-  addressLine1: string
-  addressLine2: string
-  city: string
-  state: string
-  zip: string
-  dateOfBirth: string
-  workAnniversary: string
-  maritalStatus: string
-  spouseName: string
-  childrensName: string
-  college: string
-  degree: string
-  priorEmployer: string
-  endDate: string
-  notes: string
-  sportsTeam: string
-  favorites: string
-  group: string
-  report: string
-}
-
 export function ContactRegistration() {
-  const [formData, setFormData] = useState<ContactFormData>({
+  const [formData, setFormData] = useState({
     type: "",
     existingContacts: "",
     firstName: "",
@@ -55,11 +22,11 @@ export function ContactRegistration() {
     status: "Active",
     goesBy: "",
     pronouns: "",
-    emailAddress: "",
+  emails: [""],
     officeNumber: "",
     cellNumber: "",
-    addressLine1: "",
-    addressLine2: "",
+  addressLines: [""],
+  addressLine2: "",
     city: "",
     state: "",
     zip: "",
@@ -67,10 +34,10 @@ export function ContactRegistration() {
     workAnniversary: "",
     maritalStatus: "",
     spouseName: "",
-    childrensName: "",
-    college: "",
-    degree: "",
-    priorEmployer: "",
+  childrensNames: [""],
+  college: "",
+  degree: "",
+  priorEmployers: [""],
     endDate: "",
     notes: "",
     sportsTeam: "",
@@ -78,90 +45,147 @@ export function ContactRegistration() {
     group: "",
     report: "",
   })
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const [error, setError] = useState("")
-  const [invalidField, setInvalidField] = useState<keyof ContactFormData | null>(null)
+  const validate = () => {
+    const errs: Record<string, string> = {}
+    // Required fields
+  if (!formData.type || formData.type.trim() === '') errs.type = 'Type is required'
+  if (!formData.firstName || formData.firstName.trim() === '') errs.firstName = 'First name is required'
+  if (!formData.lastName || formData.lastName.trim() === '') errs.lastName = 'Last name is required'
+  if (formData.firstName && formData.lastName && formData.firstName.trim() === formData.lastName.trim()) errs.lastName = 'First and last name cannot be the same'
+  if (!formData.status || formData.status.trim() === '') errs.status = 'Status is required'
+  if (!formData.group || formData.group.trim() === '') errs.group = 'Group is required'
 
-  const requiredFields: (keyof ContactFormData)[] = [
-    "firstName",
-    "lastName",
-    "emailAddress",
-    "cellNumber",
-    "city",
-    "state",
-    "zip",
-  ]
-
-  const handleReset = () => {
-    setFormData({
-      type: "",
-      existingContacts: "",
-      firstName: "",
-      lastName: "",
-      suffix: "",
-      title: "",
-      status: "Active",
-      goesBy: "",
-      pronouns: "",
-      emailAddress: "",
-      officeNumber: "",
-      cellNumber: "",
-      addressLine1: "",
-      addressLine2: "",
-      city: "",
-      state: "",
-      zip: "",
-      dateOfBirth: "",
-      workAnniversary: "",
-      maritalStatus: "",
-      spouseName: "",
-      childrensName: "",
-      college: "",
-      degree: "",
-      priorEmployer: "",
-      endDate: "",
-      notes: "",
-      sportsTeam: "",
-      favorites: "",
-      group: "",
-      report: "",
-    })
-    setError("")
-    setInvalidField(null)
-  }
-
-  const validateForm = () => {
-    for (const field of requiredFields) {
-      if (!formData[field] || formData[field].trim() === "") {
-        setError(`Please fill in the required field: ${field}`)
-        setInvalidField(field)
-        return false
+    // Email - stricter
+    // Email is required and validated
+    if (!formData.emails || !formData.emails[0] || String(formData.emails[0]).trim() === '') {
+      errs.emailAddress = 'Email is required'
+    } else {
+      const email = String(formData.emails[0]).trim()
+        // RFC-like pattern (reasonable for validation) + require TLD of 2+
+        const re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[A-Za-z]{2,}$/
+        if (email.length > 320) errs.emailAddress = 'Email is too long'
+        else if (email.indexOf('..') !== -1) errs.emailAddress = 'Invalid email address'
+        else if (!re.test(email)) errs.emailAddress = 'Invalid email address'
       }
+
+      // Address Line 1 required
+      if (!formData.addressLines || !formData.addressLines[0] || String(formData.addressLines[0]).trim() === '') {
+        errs.addressLine1 = 'Address Line 1 is required'
+      }
+
+    // Phone validation: numeric only and max 10 digits
+    if (formData.cellNumber) {
+      const digits = formData.cellNumber.replace(/\D/g, '')
+      if (!/^\d+$/.test(digits)) errs.cellNumber = 'Phone number must contain only digits'
+      else if (digits.length > 10) errs.cellNumber = 'Phone number cannot exceed 10 digits'
     }
-    setError("")
-    setInvalidField(null)
-    return true
+
+    // Zip numeric check
+    if (formData.zip && !/^\d{0,10}$/.test(formData.zip)) errs.zip = 'Zip must be numeric'
+
+    setErrors(errs)
+    return Object.keys(errs).length === 0
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!validateForm()) return alert("Form Not Valid")
+    if (!validate()) return
+
+    // Map frontend fields to backend schema expected by /api/contact/register
+    const payload = {
+      type: formData.type,
+      existingContacts: formData.existingContacts,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      suffix: formData.suffix,
+      title: formData.title,
+      status: formData.status,
+      goesBy: formData.goesBy,
+      pronouns: formData.pronouns,
+      // primary (first) email for backward compatibility
+      emailAddress: (formData.emails && formData.emails[0]) || null,
+      // include full emails array
+      emails: formData.emails || [],
+      officeNumber: formData.officeNumber,
+      cellNumber: formData.cellNumber,
+      // primary (first) address line
+      addressLine1: (formData.addressLines && formData.addressLines[0]) || null,
+      // include full addressLines array
+      addressLines: formData.addressLines || [],
+      addressLine2: formData.addressLine2,
+      city: formData.city,
+      state: formData.state,
+      zip: formData.zip,
+      dateOfBirth: formData.dateOfBirth,
+      workAnniversary: formData.workAnniversary,
+      maritalStatus: formData.maritalStatus,
+      spouseName: formData.spouseName,
+  childrensName: (formData.childrensNames && formData.childrensNames[0]) || null,
+  childrensNames: formData.childrensNames || [],
+      college: formData.college,
+      degree: formData.degree,
+  priorEmployer: (formData.priorEmployers && formData.priorEmployers[0]) || null,
+  priorEmployers: formData.priorEmployers || [],
+      endDate: formData.endDate,
+      notes: formData.notes,
+      sportsTeam: formData.sportsTeam,
+      favorites: formData.favorites,
+      group: formData.group,
+      report: formData.report,
+    }
+
     try {
-      const res = await fetch("http://localhost:5000/api/contact/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+      const res = await fetch('http://localhost:5000/api/contact/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       })
       const data = await res.json()
-      if (res.ok) {
-        handleReset()
-        alert("🚀 Contact Registered Successfully!")
+      if (!res.ok) {
+        // show server-side error
+        alert(data.error || 'Submission failed')
       } else {
-        setError(data.message || "Registration failed")
-        alert("Error")
+        // success
+        alert('Contact registered successfully')
+        setFormData({
+          type: "",
+          existingContacts: "",
+          firstName: "",
+          lastName: "",
+          suffix: "",
+          title: "",
+          status: "Active",
+          goesBy: "",
+          pronouns: "",
+          emails: [""],
+          officeNumber: "",
+          cellNumber: "",
+          addressLines: [""],
+          addressLine2: "",
+          city: "",
+          state: "",
+          zip: "",
+          dateOfBirth: "",
+          workAnniversary: "",
+          maritalStatus: "",
+          spouseName: "",
+    childrensNames: [""],
+          college: "",
+          degree: "",
+          priorEmployers: [""],
+          endDate: "",
+          notes: "",
+          sportsTeam: "",
+          favorites: "",
+          group: "",
+          report: "",
+        });
       }
     } catch (err) {
-      setError("Network error")
+      console.error(err)
+      alert('Network error while submitting form')
     }
   }
   const [showAddUser, setShowAddUser] = useState(false)
@@ -171,6 +195,7 @@ export function ContactRegistration() {
     return <ContactManagement />
   }
   return (
+
     <div className="max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -180,8 +205,7 @@ export function ContactRegistration() {
           className="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2"
           onClick={() => setShowAddUser(true)}
         >
-          View Registeration
-        </Button>
+          View Registeration</Button>
       </div>
 
       <Card className="shadow-lg border-0">
@@ -193,7 +217,7 @@ export function ContactRegistration() {
                 <Label htmlFor="type" className="text-sm font-medium text-gray-700">
                   Type: <span className="text-red-500">*</span>
                 </Label>
-                <Select>
+                <Select value={formData.type} onValueChange={(v) => setFormData({ ...formData, type: v })}>
                   <SelectTrigger className="h-10 w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
@@ -202,6 +226,7 @@ export function ContactRegistration() {
                     <SelectItem value="company">Company</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.type && <p className="text-sm text-red-600">{errors.type}</p>}
               </div>
               <div className="space-y-1">
                 <Label htmlFor="existing-contacts" className="text-sm font-medium text-gray-700">
@@ -246,11 +271,8 @@ export function ContactRegistration() {
                   className="h-10"
                   value={formData.firstName}
                   onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                  style={{
-                    borderColor: invalidField === "firstName" ? "red" : undefined,
-                    borderWidth: invalidField === "firstName" ? "2px" : undefined,
-                  }}
                 />
+                {errors.firstName && <p className="text-sm text-red-600">{errors.firstName}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
@@ -262,11 +284,8 @@ export function ContactRegistration() {
                   className="h-10"
                   value={formData.lastName}
                   onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                  style={{
-                    borderColor: invalidField === "lastName" ? "red" : undefined,
-                    borderWidth: invalidField === "lastName" ? "2px" : undefined,
-                  }}
                 />
+                {errors.lastName && <p className="text-sm text-red-600">{errors.lastName}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="suffix" className="text-sm font-medium text-gray-700">
@@ -296,7 +315,7 @@ export function ContactRegistration() {
                 <Label htmlFor="status" className="text-sm font-medium text-gray-700">
                   Status: <span className="text-red-500">*</span>
                 </Label>
-                <Select defaultValue="Active">
+                <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
                   <SelectTrigger className="h-10">
                     <SelectValue />
                   </SelectTrigger>
@@ -305,6 +324,7 @@ export function ContactRegistration() {
                     <SelectItem value="Inactive">Inactive</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.status && <p className="text-sm text-red-600">{errors.status}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="goesBy" className="text-sm font-medium text-gray-700">
@@ -330,20 +350,47 @@ export function ContactRegistration() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                  Email Address: <span className="text-blue-600 text-lg">★</span>
+                  Email Address: <span className="text-red-500">*</span>
                 </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Email Address"
-                  className="h-10"
-                  value={formData.emailAddress}
-                  onChange={(e) => setFormData({ ...formData, emailAddress: e.target.value })}
-                  style={{
-                    borderColor: invalidField === "emailAddress" ? "red" : undefined,
-                    borderWidth: invalidField === "emailAddress" ? "2px" : undefined,
-                  }}
-                />
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Email Address"
+                    className="h-10 flex-1"
+                    value={(formData.emails && formData.emails[0]) || ''}
+                    required
+                    onChange={(e) => setFormData(prev => ({ ...prev, emails: [e.target.value, ...(prev.emails?.slice(1) || [])] }))}
+                    onBlur={() => {
+                      const email = ((formData.emails && formData.emails[0]) || '').trim()
+                      const re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[A-Za-z]{2,}$/
+                      if (!email) return
+                      if (email.length > 320) setErrors(prev => ({ ...prev, emailAddress: 'Email is too long' }))
+                      else if (email.indexOf('..') !== -1) setErrors(prev => ({ ...prev, emailAddress: 'Invalid email address' }))
+                      else if (!re.test(email)) setErrors(prev => ({ ...prev, emailAddress: 'Invalid email address' }))
+                      else setErrors(prev => { const p = { ...prev }; delete p.emailAddress; return p })
+                    }}
+                  />
+                  <Button type="button" className="h-10 w-10 p-0" onClick={() => setFormData(prev => ({ ...prev, emails: [...(prev.emails || ['']), ''] }))}>+</Button>
+                </div>
+                {errors.emailAddress && <p className="text-sm text-red-600">{errors.emailAddress}</p>}
+                {/* render extra emails if any */}
+                {formData.emails && formData.emails.slice(1).map((em, idx) => (
+                  <div key={idx} className="flex items-center gap-2 mt-2">
+                    <Input
+                      type="email"
+                      placeholder={`Email ${idx + 2}`}
+                      className="h-10 flex-1"
+                      value={em}
+                      onChange={(e) => setFormData(prev => {
+                        const next = [...(prev.emails || [])]
+                        next[idx + 1] = e.target.value
+                        return { ...prev, emails: next }
+                      })}
+                    />
+                    <Button type="button" className="h-10 w-10 p-0" onClick={() => setFormData(prev => ({ ...prev, emails: prev.emails.filter((_, i) => i !== idx + 1) }))}>-</Button>
+                  </div>
+                ))}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="office" className="text-sm font-medium text-gray-700">
@@ -354,7 +401,12 @@ export function ContactRegistration() {
                   placeholder="Office Number"
                   className="h-10"
                   value={formData.officeNumber}
-                  onChange={(e) => setFormData({ ...formData, officeNumber: e.target.value })}
+                  inputMode="numeric"
+                  pattern="\d*"
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, '')
+                    setFormData({ ...formData, officeNumber: digits })
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -366,12 +418,15 @@ export function ContactRegistration() {
                   placeholder="Cell Number"
                   className="h-10"
                   value={formData.cellNumber}
-                  onChange={(e) => setFormData({ ...formData, cellNumber: e.target.value })}
-                  style={{
-                    borderColor: invalidField === "cellNumber" ? "red" : undefined,
-                    borderWidth: invalidField === "cellNumber" ? "2px" : undefined,
+                  inputMode="numeric"
+                  pattern="\d*"
+                  maxLength={10}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, '')
+                    setFormData({ ...formData, cellNumber: digits })
                   }}
                 />
+                {errors.cellNumber && <p className="text-sm text-red-600">{errors.cellNumber}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="group" className="text-sm font-medium text-gray-700">
@@ -384,6 +439,7 @@ export function ContactRegistration() {
                   value={formData.group}
                   onChange={(e) => setFormData({ ...formData, group: e.target.value })}
                 />
+                {errors.group && <p className="text-sm text-red-600">{errors.group}</p>}
               </div>
             </div>
 
@@ -391,15 +447,35 @@ export function ContactRegistration() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="address1" className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                  Address Line 1: <span className="text-blue-600 text-lg">★</span>
+                  Address Line 1: <span className="text-red-500">*</span>
                 </Label>
-                <Input
-                  id="address1"
-                  placeholder="Address 1"
-                  className="h-10"
-                  value={formData.addressLine1}
-                  onChange={(e) => setFormData({ ...formData, addressLine1: e.target.value })}
-                />
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="address1"
+                    placeholder="Address 1"
+                    className="h-10 flex-1"
+                    value={(formData.addressLines && formData.addressLines[0]) || ''}
+                    required
+                    onChange={(e) => setFormData(prev => ({ ...prev, addressLines: [e.target.value, ...(prev.addressLines?.slice(1) || [])] }))}
+                  />
+                  <Button type="button" className="h-10 w-10 p-0" onClick={() => setFormData(prev => ({ ...prev, addressLines: [...(prev.addressLines || ['']), ''] }))}>+</Button>
+                </div>
+                {errors.addressLine1 && <p className="text-sm text-red-600">{errors.addressLine1}</p>}
+                {formData.addressLines && formData.addressLines.slice(1).map((al, idx) => (
+                  <div key={idx} className="flex items-center gap-2 mt-2">
+                    <Input
+                      placeholder={`Address ${idx + 2}`}
+                      className="h-10 flex-1"
+                      value={al}
+                      onChange={(e) => setFormData(prev => {
+                        const next = [...(prev.addressLines || [])]
+                        next[idx + 1] = e.target.value
+                        return { ...prev, addressLines: next }
+                      })}
+                    />
+                    <Button type="button" className="h-10 w-10 p-0" onClick={() => setFormData(prev => ({ ...prev, addressLines: prev.addressLines.filter((_, i) => i !== idx + 1) }))}>-</Button>
+                  </div>
+                ))}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="address2" className="text-sm font-medium text-gray-700">
@@ -410,7 +486,7 @@ export function ContactRegistration() {
                   placeholder="Address 2"
                   className="h-10"
                   value={formData.addressLine2}
-                  onChange={(e) => setFormData({ ...formData, addressLine2: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, addressLine2: e.target.value }))}
                 />
               </div>
               <div className="space-y-2">
@@ -423,10 +499,6 @@ export function ContactRegistration() {
                   className="h-10"
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  style={{
-                    borderColor: invalidField === "city" ? "red" : undefined,
-                    borderWidth: invalidField === "city" ? "2px" : undefined,
-                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -457,10 +529,11 @@ export function ContactRegistration() {
                   placeholder="Zip"
                   className="h-10"
                   value={formData.zip}
-                  onChange={(e) => setFormData({ ...formData, zip: e.target.value })}
-                  style={{
-                    borderColor: invalidField === "zip" ? "red" : undefined,
-                    borderWidth: invalidField === "zip" ? "2px" : undefined,
+                  inputMode="numeric"
+                  pattern="\d*"
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, '')
+                    setFormData({ ...formData, zip: digits })
                   }}
                 />
               </div>
@@ -490,7 +563,7 @@ export function ContactRegistration() {
                 <div className="relative">
                   <Input
                     id="dob"
-                    placeholder="mm/dd/yyyy"
+                    type="date"
                     className="h-10"
                     value={formData.dateOfBirth}
                     onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
@@ -505,7 +578,7 @@ export function ContactRegistration() {
                 <div className="relative">
                   <Input
                     id="anniversary"
-                    placeholder="mm/dd/yyyy"
+                    type="date"
                     className="h-10"
                     value={formData.workAnniversary}
                     onChange={(e) => setFormData({ ...formData, workAnniversary: e.target.value })}
@@ -542,19 +615,33 @@ export function ContactRegistration() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="children" className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                  Children's Name: <span className="text-blue-600 text-lg">★</span>
+                  Children's Name:
                 </Label>
-                <Input
-                  id="children"
-                  placeholder="Children's Name"
-                  className="h-10"
-                  value={formData.childrensName}
-                  onChange={(e) => setFormData({ ...formData, childrensName: e.target.value })}
-                  style={{
-                    borderColor: invalidField === "childrensName" ? "red" : undefined,
-                    borderWidth: invalidField === "childrensName" ? "2px" : undefined,
-                  }}
-                />
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="children"
+                    placeholder="Children's Name"
+                    className="h-10 flex-1"
+                    value={(formData.childrensNames && formData.childrensNames[0]) || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, childrensNames: [e.target.value, ...(prev.childrensNames?.slice(1) || [])] }))}
+                  />
+                  <Button type="button" className="h-10 w-10 p-0" onClick={() => setFormData(prev => ({ ...prev, childrensNames: [...(prev.childrensNames || ['']), ''] }))}>+</Button>
+                </div>
+                {formData.childrensNames && formData.childrensNames.slice(1).map((c, idx) => (
+                  <div key={idx} className="flex items-center gap-2 mt-2">
+                    <Input
+                      placeholder={`Child ${idx + 2}`}
+                      className="h-10 flex-1"
+                      value={c}
+                      onChange={(e) => setFormData(prev => {
+                        const next = [...(prev.childrensNames || [])]
+                        next[idx + 1] = e.target.value
+                        return { ...prev, childrensNames: next }
+                      })}
+                    />
+                    <Button type="button" className="h-10 w-10 p-0" onClick={() => setFormData(prev => ({ ...prev, childrensNames: prev.childrensNames.filter((_, i) => i !== idx + 1) }))}>-</Button>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -586,19 +673,33 @@ export function ContactRegistration() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="employer" className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                  Prior Employer: <span className="text-blue-600 text-lg">★</span>
+                  Prior Employer:
                 </Label>
-                <Input
-                  id="employer"
-                  placeholder="Prior Employer"
-                  className="h-10"
-                  value={formData.priorEmployer}
-                  onChange={(e) => setFormData({ ...formData, priorEmployer: e.target.value })}
-                  style={{
-                    borderColor: invalidField === "priorEmployer" ? "red" : undefined,
-                    borderWidth: invalidField === "priorEmployer" ? "2px" : undefined,
-                  }}
-                />
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="employer"
+                    placeholder="Prior Employer"
+                    className="h-10 flex-1"
+                    value={(formData.priorEmployers && formData.priorEmployers[0]) || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, priorEmployers: [e.target.value, ...(prev.priorEmployers?.slice(1) || [])] }))}
+                  />
+                  <Button type="button" className="h-10 w-10 p-0" onClick={() => setFormData(prev => ({ ...prev, priorEmployers: [...(prev.priorEmployers || ['']), ''] }))}>+</Button>
+                </div>
+                {formData.priorEmployers && formData.priorEmployers.slice(1).map((p, idx) => (
+                  <div key={idx} className="flex items-center gap-2 mt-2">
+                    <Input
+                      placeholder={`Prior Employer ${idx + 2}`}
+                      className="h-10 flex-1"
+                      value={p}
+                      onChange={(e) => setFormData(prev => {
+                        const next = [...(prev.priorEmployers || [])]
+                        next[idx + 1] = e.target.value
+                        return { ...prev, priorEmployers: next }
+                      })}
+                    />
+                    <Button type="button" className="h-10 w-10 p-0" onClick={() => setFormData(prev => ({ ...prev, priorEmployers: prev.priorEmployers.filter((_, i) => i !== idx + 1) }))}>-</Button>
+                  </div>
+                ))}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="endDate" className="text-sm font-medium text-gray-700">
@@ -607,7 +708,7 @@ export function ContactRegistration() {
                 <div className="relative">
                   <Input
                     id="endDate"
-                    placeholder="mm/dd/yyyy"
+                    type="date"
                     className="h-10"
                     value={formData.endDate}
                     onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
@@ -658,6 +759,7 @@ export function ContactRegistration() {
                   />
                 </div>
               </div>
+
             </div>
             {/* Submit Button */}
             <div className="flex justify-center pt-6">
@@ -668,7 +770,7 @@ export function ContactRegistration() {
                            shadow-lg text-white px-8 py-3 rounded-xl font-semibold 
                            animate-pulse"
               >
-                Register
+                Register Contact
               </Button>
             </div>
           </form>
@@ -676,5 +778,16 @@ export function ContactRegistration() {
         </CardContent>
       </Card>
     </div>
+
+
+
+
+
+
+
+
+
+
+
   )
 }
