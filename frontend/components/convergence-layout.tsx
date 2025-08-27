@@ -1,19 +1,19 @@
 "use client"
 
-import type React from "react"
-
+import React from "react"
+import { useEffect } from "react"
 import { useState } from "react"
 import { Bell, Search, User, ChevronDown, ChevronRight } from "lucide-react"
-import { Button } from "@/frontend/components/ui/button"
-import { Avatar, AvatarFallback } from "@/frontend/components/ui/avatar"
-import { Badge } from "@/frontend/components/ui/badge"
-import { ContactManagement } from "@/frontend/components/contact-management" // Import ContactManagement component
-import { UserRegistration } from "@/frontend/components/user-registration" // Import UserRegistration component
-import { UserManagement } from "@/frontend/components/user-management" // Import UserManagement component
-import { MyUploads } from "@/frontend/components/my-uploads" // Import MyUploads component
-import { MyDownloads } from "@/frontend/components/my-downloads" // Import MyDownloads component
-import { AddNotice } from "@/frontend/components/add-notice" // Import AddNotice component
-import { ViewNotice } from "@/frontend/components/view-notice" // Import ViewNotice component
+import { Button } from "./ui/button"
+import { Avatar, AvatarFallback } from "./ui/avatar"
+import { Badge } from "./ui/badge"
+import { ContactManagement } from "./contact-management" // Import ContactManagement component
+import { UserRegistration } from "./user-registration" // Import UserRegistration component
+import { UserManagement } from "./user-management" // Import UserManagement component
+import { MyUploads } from "./my-uploads" // Import MyUploads component
+import { MyDownloads } from "./my-downloads" // Import MyDownloads component
+import { AddNotice } from "./add-notice" // Import AddNotice component
+import { ViewNotice } from "./view-notice" // Import ViewNotice component
 
 interface ConvergenceLayoutProps {
   children: React.ReactNode

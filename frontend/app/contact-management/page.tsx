@@ -1,5 +1,5 @@
-import { ConvergenceLayout } from "@/frontend/components/convergence-layout"
-import { ContactManagement } from "@/frontend/components/contact-management"
+import { ConvergenceLayout } from "@/components/convergence-layout"
+import { ContactManagement } from "@/components/contact-management"
 
 export default function ContactManagementPage() {
   return (

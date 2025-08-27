@@ -1,12 +1,13 @@
 "use client"
 
+import React from "react"
 import { useState } from "react"
-import { Button } from "@/frontend/components/ui/button"
-import { Input } from "@/frontend/components/ui/input"
-import { Badge } from "@/frontend/components/ui/badge"
-import { Card, CardContent } from "@/frontend/components/ui/card"
+import { Button } from "./ui/button"
+import { Input } from "./ui/input"
+import { Badge } from "./ui/badge"
+import { Card, CardContent } from "./ui/card"
 import { Search } from "lucide-react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/frontend/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 import { UserRegistration } from "./user-registration"
 
 
