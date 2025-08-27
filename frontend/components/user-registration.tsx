@@ -22,6 +22,10 @@ export function UserRegistration() {
     userGroup: "None Selected",
   })
 
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
+
   const handleReset = () => {
     setFormData({
       type: "",
@@ -34,7 +38,36 @@ export function UserRegistration() {
       role: "",
       userGroup: "None Selected",
     })
+    setError("")
+    setSuccess("")
   }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError("")
+    setSuccess("")
+    try {
+      const res = await fetch("http://localhost:5000/api/form/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setSuccess("User registered successfully!")
+        handleReset()
+        console.log("success")
+        alert("success")
+      } else {
+        setError(data.message || "Registration failed")
+      }
+    } catch (err: any) {
+      setError("Network error")
+    }
+    setLoading(false)
+  }
+
   const [showAddUser, setShowAddUser] = useState(false)
   // ...existing state and logic...
 
@@ -63,7 +96,7 @@ export function UserRegistration() {
 
       <Card className="shadow-lg border-0">
         <CardContent className="p-8">
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Type and Existing Contacts */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -205,6 +238,10 @@ export function UserRegistration() {
                 </Button>
               </div>
             </div>
+
+            {/* Show error/success messages */}
+            {error && <div className="text-red-500 text-center">{error}</div>}
+            {success && <div className="text-green-500 text-center">{success}</div>}
 
             {/* Action Buttons */}
             <div className="flex justify-center gap-4 pt-6">

@@ -45,10 +45,24 @@ export function ContactRegistration() {
     group: "",
     report: "",
   })
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Form submitted ✅", formData)
-    alert("🚀 Contact Registered Successfully!")
+    try {
+      const res = await fetch("http://localhost:5000/api/contact/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        alert("🚀 Contact Registered Successfully!")
+        // Optionally reset form or show success
+      } else {
+        alert(data.message || "Registration failed")
+      }
+    } catch (err) {
+      alert("Network error")
+    }
   }
   const [showAddUser, setShowAddUser] = useState(false)
   // ...existing state and logic...
