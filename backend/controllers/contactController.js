@@ -38,8 +38,8 @@ exports.registerContact = async (req, res) => {
       report: req.body.report || "",
     };
 
-    const dataDir = path.join(__dirname, '..', 'data');
-    const filePath = path.join(dataDir, 'contacts.json');
+  const dataDir = path.join(__dirname, '..', 'data');
+  const filePath = path.join(dataDir, 'submissions.json');
 
     // Ensure data directory exists
     if (!fs.existsSync(dataDir)) {
