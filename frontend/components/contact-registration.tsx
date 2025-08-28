@@ -22,11 +22,11 @@ export function ContactRegistration() {
     status: "Active",
     goesBy: "",
     pronouns: "",
-  emails: [""],
+    emails: [""],
     officeNumber: "",
     cellNumber: "",
-  addressLines: [""],
-  addressLine2: "",
+    addressLines: [""],
+    addressLine2: "",
     city: "",
     state: "",
     zip: "",
@@ -34,10 +34,10 @@ export function ContactRegistration() {
     workAnniversary: "",
     maritalStatus: "",
     spouseName: "",
-  childrensNames: [""],
-  college: "",
-  degree: "",
-  priorEmployers: [""],
+    childrensNames: [""],
+    college: "",
+    degree: "",
+    priorEmployers: [""],
     endDate: "",
     notes: "",
     sportsTeam: "",
@@ -50,12 +50,12 @@ export function ContactRegistration() {
   const validate = () => {
     const errs: Record<string, string> = {}
     // Required fields
-  if (!formData.type || formData.type.trim() === '') errs.type = 'Type is required'
-  if (!formData.firstName || formData.firstName.trim() === '') errs.firstName = 'First name is required'
-  if (!formData.lastName || formData.lastName.trim() === '') errs.lastName = 'Last name is required'
-  if (formData.firstName && formData.lastName && formData.firstName.trim() === formData.lastName.trim()) errs.lastName = 'First and last name cannot be the same'
-  if (!formData.status || formData.status.trim() === '') errs.status = 'Status is required'
-  if (!formData.group || formData.group.trim() === '') errs.group = 'Group is required'
+    if (!formData.type || formData.type.trim() === '') errs.type = 'Type is required'
+    if (!formData.firstName || formData.firstName.trim() === '') errs.firstName = 'First name is required'
+    if (!formData.lastName || formData.lastName.trim() === '') errs.lastName = 'Last name is required'
+    if (formData.firstName && formData.lastName && formData.firstName.trim() === formData.lastName.trim()) errs.lastName = 'First and last name cannot be the same'
+    if (!formData.status || formData.status.trim() === '') errs.status = 'Status is required'
+    if (!formData.group || formData.group.trim() === '') errs.group = 'Group is required'
 
     // Email - stricter
     // Email is required and validated
@@ -63,24 +63,44 @@ export function ContactRegistration() {
       errs.emailAddress = 'Email is required'
     } else {
       const email = String(formData.emails[0]).trim()
-        // RFC-like pattern (reasonable for validation) + require TLD of 2+
-        const re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[A-Za-z]{2,}$/
-        if (email.length > 320) errs.emailAddress = 'Email is too long'
-        else if (email.indexOf('..') !== -1) errs.emailAddress = 'Invalid email address'
-        else if (!re.test(email)) errs.emailAddress = 'Invalid email address'
-      }
+      // RFC-like pattern (reasonable for validation) + require TLD of 2+
+      const re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[A-Za-z]{2,}$/
+      if (email.length > 320) errs.emailAddress = 'Email is too long'
+      else if (email.indexOf('..') !== -1) errs.emailAddress = 'Invalid email address'
+      else if (!re.test(email)) errs.emailAddress = 'Invalid email address'
+    }
 
-      // Address Line 1 required
-      if (!formData.addressLines || !formData.addressLines[0] || String(formData.addressLines[0]).trim() === '') {
-        errs.addressLine1 = 'Address Line 1 is required'
-      }
+    // Address Line 1 required
+    if (!formData.addressLines || !formData.addressLines[0] || String(formData.addressLines[0]).trim() === '') {
+      errs.addressLine1 = 'Address Line 1 is required'
+    }
 
     // Phone validation: numeric only and max 10 digits
+    // if (formData.cellNumber) {
+    //   const digits = formData.cellNumber.replace(/\D/g, '')
+    //   if (!/^\d+$/.test(digits)) errs.cellNumber = 'Phone number must contain only digits'
+    //   else if (digits.length > 10) errs.cellNumber = 'Phone number cannot exceed 10 digits'
+    // }
+
     if (formData.cellNumber) {
-      const digits = formData.cellNumber.replace(/\D/g, '')
-      if (!/^\d+$/.test(digits)) errs.cellNumber = 'Phone number must contain only digits'
-      else if (digits.length > 10) errs.cellNumber = 'Phone number cannot exceed 10 digits'
+      const value = formData.cellNumber.trim();
+
+      // must match + followed by digits, or just digits
+      if (!/^\+?\d+$/.test(value)) {
+        errs.cellNumber = 'Phone number must contain only digits and may start with +';
+      }
+      else if (value.startsWith('+')) {
+        if (value.length < 12 || value.length > 13) {
+          errs.cellNumber = 'Phone number must be 12 to 13 characters long including +';
+        }
+      }
+      else {
+        if (value.length < 12 || value.length > 13) {
+          errs.cellNumber = 'Phone number must be 12 to 13 digits long';
+        }
+      }
     }
+
 
     // Zip numeric check
     if (formData.zip && !/^\d{0,10}$/.test(formData.zip)) errs.zip = 'Zip must be numeric'
@@ -122,12 +142,12 @@ export function ContactRegistration() {
       workAnniversary: formData.workAnniversary,
       maritalStatus: formData.maritalStatus,
       spouseName: formData.spouseName,
-  childrensName: (formData.childrensNames && formData.childrensNames[0]) || null,
-  childrensNames: formData.childrensNames || [],
+      childrensName: (formData.childrensNames && formData.childrensNames[0]) || null,
+      childrensNames: formData.childrensNames || [],
       college: formData.college,
       degree: formData.degree,
-  priorEmployer: (formData.priorEmployers && formData.priorEmployers[0]) || null,
-  priorEmployers: formData.priorEmployers || [],
+      priorEmployer: (formData.priorEmployers && formData.priorEmployers[0]) || null,
+      priorEmployers: formData.priorEmployers || [],
       endDate: formData.endDate,
       notes: formData.notes,
       sportsTeam: formData.sportsTeam,
@@ -171,7 +191,7 @@ export function ContactRegistration() {
           workAnniversary: "",
           maritalStatus: "",
           spouseName: "",
-    childrensNames: [""],
+          childrensNames: [""],
           college: "",
           degree: "",
           priorEmployers: [""],
@@ -189,7 +209,6 @@ export function ContactRegistration() {
     }
   }
   const [showAddUser, setShowAddUser] = useState(false)
-  // ...existing state and logic...
 
   if (showAddUser) {
     return <ContactManagement />
@@ -413,17 +432,40 @@ export function ContactRegistration() {
                 <Label htmlFor="cell" className="text-sm font-medium text-gray-700">
                   Cell Number:
                 </Label>
-                <Input
+                {/* <Input
                   id="cell"
                   placeholder="Cell Number"
                   className="h-10"
                   value={formData.cellNumber}
                   inputMode="numeric"
                   pattern="\d*"
-                  maxLength={10}
+                  maxLength={13}
                   onChange={(e) => {
                     const digits = e.target.value.replace(/\D/g, '')
                     setFormData({ ...formData, cellNumber: digits })
+                  }}
+                /> */}
+                <Input
+                  id="cell"
+                  placeholder="Cell Number"
+                  className="h-10"
+                  value={formData.cellNumber}
+                  inputMode="numeric"
+                  maxLength={13}
+                  onChange={(e) => {
+                    let val = e.target.value;
+
+                    // Allow "+" only at the beginning
+                    if (val.startsWith('+')) {
+                      val = '+' + val.slice(1).replace(/\D/g, '');
+                    } else {
+                      val = val.replace(/\D/g, '');
+                    }
+
+                    // Enforce max 13 length
+                    if (val.length <= 13) {
+                      setFormData({ ...formData, cellNumber: val });
+                    }
                   }}
                 />
                 {errors.cellNumber && <p className="text-sm text-red-600">{errors.cellNumber}</p>}
@@ -568,7 +610,7 @@ export function ContactRegistration() {
                     value={formData.dateOfBirth}
                     onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
                   />
-                  <CalendarDays className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+                  {/* <CalendarDays className="absolute right-3 top-3 h-4 w-4 text-gray-400" /> */}
                 </div>
               </div>
               <div className="space-y-2">
@@ -583,7 +625,7 @@ export function ContactRegistration() {
                     value={formData.workAnniversary}
                     onChange={(e) => setFormData({ ...formData, workAnniversary: e.target.value })}
                   />
-                  <CalendarDays className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+                  {/* <CalendarDays className="absolute right-3 top-3 h-4 w-4 text-gray-400" /> */}
                 </div>
               </div>
               <div className="space-y-2">
