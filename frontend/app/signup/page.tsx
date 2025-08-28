@@ -28,6 +28,7 @@ export default function SignUpPage() {
     }
 
     try {
+
       const response = await fetch(`http://${api_url}/api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -38,7 +39,7 @@ export default function SignUpPage() {
           password: formData.password
         })
       })
-
+      console.log("➡️ API Request:");
       const data = await response.json()
       if (!response.ok) {
         alert(data.error || 'Signup failed')

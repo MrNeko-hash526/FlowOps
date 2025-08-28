@@ -6,7 +6,9 @@ const formRoutes = require('./routes/form')
 const contactRoutes = require('./routes/contactRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
-// duplicate import removed
+
+
+
 // Middleware
 // app.use(cors())
 app.use(
@@ -17,9 +19,17 @@ app.use(
   })
 );
 
+const morgan = require('morgan');
+app.use(morgan('dev')); 
+
 
 app.use(express.json());
 app.set('trust proxy', true); 
+
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} from ${req.ip}`);
+  next();
+});
 
 // Basic route
 app.get('/', (req, res) => {
