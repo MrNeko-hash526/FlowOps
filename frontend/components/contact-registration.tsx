@@ -75,12 +75,7 @@ export function ContactRegistration() {
       errs.addressLine1 = 'Address Line 1 is required'
     }
 
-    // Phone validation: numeric only and max 10 digits
-    // if (formData.cellNumber) {
-    //   const digits = formData.cellNumber.replace(/\D/g, '')
-    //   if (!/^\d+$/.test(digits)) errs.cellNumber = 'Phone number must contain only digits'
-    //   else if (digits.length > 10) errs.cellNumber = 'Phone number cannot exceed 10 digits'
-    // }
+
 
     if (formData.cellNumber) {
       const value = formData.cellNumber.trim();
@@ -224,7 +219,7 @@ export function ContactRegistration() {
           className="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2"
           onClick={() => setShowAddUser(true)}
         >
-          View Registeration</Button>
+          {/* &lt;-*/} ← BACK </Button>
       </div>
 
       <Card className="shadow-lg border-0">
@@ -270,7 +265,7 @@ export function ContactRegistration() {
                   Pronouns:
                 </Label>
                 <Select>
-                  <SelectTrigger className="h-10">
+                  <SelectTrigger className="h-10 w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -287,7 +282,7 @@ export function ContactRegistration() {
                 <Input
                   id="firstName"
                   placeholder="First Name"
-                  className="h-10"
+                  className="h-10 w-full"
                   value={formData.firstName}
                   onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                 />
@@ -300,7 +295,7 @@ export function ContactRegistration() {
                 <Input
                   id="lastName"
                   placeholder="Last Name"
-                  className="h-10"
+                  className="h-10 w-full"
                   value={formData.lastName}
                   onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                 />
@@ -313,7 +308,7 @@ export function ContactRegistration() {
                 <Input
                   id="suffix"
                   placeholder="Suffix"
-                  className="h-10"
+                  className="h-10 w-full"
                   value={formData.suffix}
                   onChange={(e) => setFormData({ ...formData, suffix: e.target.value })}
                 />
@@ -325,7 +320,7 @@ export function ContactRegistration() {
                 <Input
                   id="title"
                   placeholder="Title"
-                  className="h-10"
+                  className="h-10 w-full"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 />
@@ -335,7 +330,7 @@ export function ContactRegistration() {
                   Status: <span className="text-red-500">*</span>
                 </Label>
                 <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
-                  <SelectTrigger className="h-10">
+                  <SelectTrigger className="h-10 w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -376,7 +371,7 @@ export function ContactRegistration() {
                     id="email"
                     type="email"
                     placeholder="Email Address"
-                    className="h-10 flex-1"
+                    className="h-10 flex-1 w-full"
                     value={(formData.emails && formData.emails[0]) || ''}
                     required
                     onChange={(e) => setFormData(prev => ({ ...prev, emails: [e.target.value, ...(prev.emails?.slice(1) || [])] }))}
@@ -413,7 +408,7 @@ export function ContactRegistration() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="office" className="text-sm font-medium text-gray-700">
-                  Office Number:
+                  Office Number: <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="office"
@@ -430,7 +425,7 @@ export function ContactRegistration() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="cell" className="text-sm font-medium text-gray-700">
-                  Cell Number:
+                  Cell Number: <span className="text-red-500">*</span>
                 </Label>
                 {/* <Input
                   id="cell"
@@ -533,7 +528,7 @@ export function ContactRegistration() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="city" className="text-sm font-medium text-gray-700">
-                  City:
+                  City: <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="city"
@@ -545,10 +540,10 @@ export function ContactRegistration() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="state" className="text-sm font-medium text-gray-700">
-                  State:
+                  State: <span className="text-red-500">*</span>
                 </Label>
                 <Select>
-                  <SelectTrigger className="h-10">
+                  <SelectTrigger className="h-10 w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -564,7 +559,7 @@ export function ContactRegistration() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="zip" className="text-sm font-medium text-gray-700">
-                  Zip:
+                  Zip: <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="zip"
@@ -584,7 +579,7 @@ export function ContactRegistration() {
                   Report:
                 </Label>
                 <Select>
-                  <SelectTrigger className="h-10">
+                  <SelectTrigger className="h-10 w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -600,7 +595,7 @@ export function ContactRegistration() {
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="dob" className="text-sm font-medium text-gray-700">
-                  Date Of Birth:
+                  Date Of Birth:  <span className="text-red-500">*</span>
                 </Label>
                 <div className="relative">
                   <Input
@@ -615,7 +610,7 @@ export function ContactRegistration() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="anniversary" className="text-sm font-medium text-gray-700">
-                  Work Anniversary:
+                  Work Anniversary:  <span className="text-red-500">*</span>
                 </Label>
                 <div className="relative">
                   <Input
@@ -633,7 +628,7 @@ export function ContactRegistration() {
                   Marital Status:
                 </Label>
                 <Select>
-                  <SelectTrigger className="h-10">
+                  <SelectTrigger className="h-10 w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -747,15 +742,15 @@ export function ContactRegistration() {
                 <Label htmlFor="endDate" className="text-sm font-medium text-gray-700">
                   End Date:
                 </Label>
-                <div className="relative">
+                <div className="relative ">
                   <Input
                     id="endDate"
                     type="date"
-                    className="h-10"
+                    className="h-10 "
                     value={formData.endDate}
                     onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
                   />
-                  <CalendarDays className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+
                 </div>
               </div>
             </div>
@@ -769,8 +764,8 @@ export function ContactRegistration() {
                 <Textarea
                   id="notes"
                   placeholder="Notes"
-                  rows={4}
-                  className="resize-none"
+                  rows={5}
+                  className="resize-none h-90"
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 />
