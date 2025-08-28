@@ -34,13 +34,29 @@ export default function LoginPage() {
     if (Object.keys(newErrors).length > 0) return
 
     setIsLoading(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1200))
-    console.log("Login attempt:", formData)
-    setIsLoading(false)
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        })
+      })
 
-    // For now, redirect to access-selection page
-    window.location.href = "/auth"
+      const data = await response.json()
+      if (!response.ok) {
+        alert(data.error || 'Login failed')
+        setIsLoading(false)
+        return
+      }
+
+      // Login successful, redirect to /auth or dashboard
+      window.location.href = "/auth"
+    } catch (error: any) {
+      alert('Login error: ' + error.message)
+      setIsLoading(false)
+    }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
