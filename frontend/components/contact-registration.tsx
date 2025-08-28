@@ -86,23 +86,33 @@ export function ContactRegistration() {
 
 
 
-    if (formData.cellNumber) {
-      const value = formData.cellNumber.trim();
+    // if (formData.cellNumber) {
+    //   const value = formData.cellNumber.trim();
 
-      // must match + followed by digits, or just digits
-      if (!/^\+?\d+$/.test(value)) {
-        errs.cellNumber = 'Phone number must contain only digits and may start with +';
-      }
-      else if (value.startsWith('+')) {
-        if (value.length < 12 || value.length > 13) {
-          errs.cellNumber = 'Phone number must be 12 to 13 characters long including +';
-        }
-      }
-      else {
-        if (value.length < 12 || value.length > 13) {
-          errs.cellNumber = 'Phone number must be 12 to 13 digits long';
-        }
-      }
+    //   // must match + followed by digits, or just digits
+    //   if (!/^\+?\d+$/.test(value)) {
+    //     errs.cellNumber = 'Phone number must contain only digits and may start with +';
+    //   }
+    //   else if (value.startsWith('+')) {
+    //     if (value.length < 12 || value.length > 13) {
+    //       errs.cellNumber = 'Phone number must be 12 to 13 characters long including +';
+    //     }
+    //   }
+    //   else {
+    //     if (value.length < 12 || value.length > 13) {
+    //       errs.cellNumber = 'Phone number must be 12 to 13 digits long';
+    //     }
+    //   }
+    // }
+
+    const number = (formData.cellNumber || "").trim();
+
+    if (!number) {
+      errs.cellNumber = "Cell number is required";
+    } else if (!/^\+?\d{1,}$/.test(number)) {
+      errs.cellNumber = "Must contain only digits and may start with +";
+    } else if (number.length < 12 || number.length > 13) {
+      errs.cellNumber = "Phone number must be 12–13 characters long";
     }
 
 
@@ -616,7 +626,7 @@ export function ContactRegistration() {
                 <Input
                   id="zip"
                   placeholder="Zip"
-                  className="h-10"
+                  className="h-10 w-full"
                   value={formData.zip}
                   inputMode="numeric"
                   onChange={(e) => {
