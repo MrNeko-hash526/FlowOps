@@ -25,15 +25,31 @@ export default function SignUpPage() {
       return
     }
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password
+        })
+      })
 
-    console.log("Signup attempt:", formData)
-    setIsLoading(false)
+      const data = await response.json()
+      if (!response.ok) {
+        alert(data.error || 'Signup failed')
+        setIsLoading(false)
+        return
+      }
 
-    // Here you would handle the actual signup logic
-    // For now, redirect to login page
-    window.location.href = "/login"
+      // Signup successful, redirect to login
+      window.location.href = "/login"
+    } catch (error: any) {
+      alert('Signup error: ' + error.message)
+      setIsLoading(false)
+    }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
