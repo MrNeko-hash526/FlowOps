@@ -6,7 +6,7 @@ import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Badge } from "./ui/badge"
 import { Card, CardContent } from "./ui/card"
-import { Eye, Edit, Search } from "lucide-react"
+import { Eye, Edit, Search, ArrowRight } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 import { ContactRegistration } from "./contact-registration"
 
@@ -172,7 +172,7 @@ export function ContactManagement() {
           // onClick={() => router.push("/contact-registration")}
           onClick={() => setShowAddUser(true)}
         >
-          Contact Register
+          Contact Register <ArrowRight/>
         </Button>
 
       </div>

@@ -66,6 +66,16 @@ export function ContactRegistration() {
     if (!formData.dateOfBirth || String(formData.dateOfBirth).trim() === '') errs.dateOfBirth = 'Date of birth is required'
     if (!formData.workAnniversary || String(formData.workAnniversary).trim() === '') errs.workAnniversary = 'Work anniversary is required'
 
+    // Names should not contain numbers or special characters (allow spaces, apostrophes, hyphens)
+    const nameRegex = /^[A-Za-z\s'-]+$/
+    if (formData.firstName && !nameRegex.test(formData.firstName.trim())) {
+      errs.firstName = 'Only letters, spaces, apostrophes, and hyphens are allowed'
+    }
+    const primaryChildName = (formData.childrensNames && formData.childrensNames[0]) || ''
+    if (primaryChildName && !nameRegex.test(primaryChildName.trim())) {
+      errs.childrensName = "Only letters, spaces, apostrophes, and hyphens are allowed"
+    }
+
     // Email - stricter
     // Email is required and validated
     if (!formData.emails || !formData.emails[0] || String(formData.emails[0]).trim() === '') {
@@ -308,7 +318,23 @@ export function ContactRegistration() {
                   placeholder="First Name"
                   className="h-10 w-full"
                   value={formData.firstName}
-                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                  inputMode="text"
+                  pattern="[A-Za-z]*"
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setFormData({ ...formData, firstName: value })
+                    const nameRegex = /^[A-Za-z\s'-]+$/
+                    if (value && nameRegex.test(value.trim())) {
+                      setErrors(prev => { const p = { ...prev }; delete p.firstName; return p })
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const value = e.target.value.trim()
+                    const nameRegex = /^[A-Za-z\s'-]+$/
+                    if (value && !nameRegex.test(value)) {
+                      setErrors(prev => ({ ...prev, firstName: 'Only letters, spaces, apostrophes, and hyphens are allowed' }))
+                    }
+                  }}
                 />
                 {errors.firstName && <p className="text-sm text-red-600">{errors.firstName}</p>}
               </div>
@@ -321,7 +347,23 @@ export function ContactRegistration() {
                   placeholder="Last Name"
                   className="h-10 w-full"
                   value={formData.lastName}
-                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  inputMode="text"
+                  pattern="[A-Za-z]*"
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setFormData({ ...formData, lastName: value })
+                    const nameRegex = /^[A-Za-z\s'-]+$/
+                    if (value && nameRegex.test(value.trim())) {
+                      setErrors(prev => { const p = { ...prev }; delete p.lastName; return p })
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const value = e.target.value.trim()
+                    const nameRegex = /^[A-Za-z\s'-]+$/
+                    if (value && !nameRegex.test(value)) {
+                      setErrors(prev => ({ ...prev, lastName: 'Only letters, spaces, apostrophes, and hyphens are allowed' }))
+                    }
+                  }}
                 />
                 {errors.lastName && <p className="text-sm text-red-600">{errors.lastName}</p>}
               </div>
@@ -727,8 +769,25 @@ export function ContactRegistration() {
                   placeholder="Spouse Name"
                   className="h-10"
                   value={formData.spouseName}
-                  onChange={(e) => setFormData({ ...formData, spouseName: e.target.value })}
+                  inputMode="text"
+                  pattern="[A-Za-z]*"
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setFormData({ ...formData, spouseName: value })
+                    const nameRegex = /^[A-Za-z\s'-]+$/
+                    if (!value || nameRegex.test(value.trim())) {
+                      setErrors(prev => { const p = { ...prev }; delete p.spouseName; return p })
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const value = e.target.value.trim()
+                    const nameRegex = /^[A-Za-z\s'-]+$/
+                    if (value && !nameRegex.test(value)) {
+                      setErrors(prev => ({ ...prev, spouseName: 'Only letters, spaces, apostrophes, and hyphens are allowed' }))
+                    }
+                  }}
                 />
+                {errors.spouseName && <p className="text-sm text-red-600">{errors.spouseName}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="children" className="text-sm font-medium text-gray-700 flex items-center gap-1">
@@ -740,10 +799,25 @@ export function ContactRegistration() {
                     placeholder="Children's Name"
                     className="h-10 flex-1"
                     value={(formData.childrensNames && formData.childrensNames[0]) || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, childrensNames: [e.target.value, ...(prev.childrensNames?.slice(1) || [])] }))}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      setFormData(prev => ({ ...prev, childrensNames: [value, ...(prev.childrensNames?.slice(1) || [])] }))
+                      const nameRegex = /^[A-Za-z\s'-]+$/
+                      if (!value || nameRegex.test(value.trim())) {
+                        setErrors(prev => { const p = { ...prev }; delete p.childrensName; return p })
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const value = e.target.value.trim()
+                      const nameRegex = /^[A-Za-z\s'-]+$/
+                      if (value && !nameRegex.test(value)) {
+                        setErrors(prev => ({ ...prev, childrensName: "Only letters, spaces, apostrophes, and hyphens are allowed" }))
+                      }
+                    }}
                   />
                   <Button type="button" className="h-10 w-10 p-0" onClick={() => setFormData(prev => ({ ...prev, childrensNames: [...(prev.childrensNames || ['']), ''] }))}>+</Button>
                 </div>
+                {errors.childrensName && <p className="text-sm text-red-600">{errors.childrensName}</p>}
                 {formData.childrensNames && formData.childrensNames.slice(1).map((c, idx) => (
                   <div key={idx} className="flex items-center gap-2 mt-2">
                     <Input
