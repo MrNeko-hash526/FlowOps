@@ -162,3 +162,14 @@ Frontend (`frontend/package.json`):
 ## License
 
 Proprietary – internal use.
+
+---
+
+## Contributors
+
+Thanks to all the people who have contributed to this repository:
+
+- [@Awesome-SSP (Saurabh Singh Parmar)](https://github.com/Awesome-SSP)
+- [@MrNeko-hash526 (Harshit Raj)](https://github.com/MrNeko-hash526)
+
+[![Contributors](https://contrib.rocks/image?repo=Awesome-SSP/FlowOps)](https://github.com/Awesome-SSP/FlowOps/graphs/contributors)
