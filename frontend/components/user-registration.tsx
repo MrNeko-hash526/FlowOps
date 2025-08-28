@@ -32,8 +32,8 @@ export function UserRegistration() {
     lastName: "",
     email: "",
     confirmEmail: "",
-  countryCode: "US:+1",
-  phoneNo: "",
+    countryCode: "US:+1",
+    phoneNo: "",
     role: "",
     userGroup: "None Selected",
   })
@@ -65,8 +65,8 @@ export function UserRegistration() {
     setError("")
     setSuccess("")
     setPhoneError("")
-  setTypeError("")
-  setRoleError("")
+    setTypeError("")
+    setRoleError("")
   }
 
   // List required fields
@@ -100,8 +100,8 @@ export function UserRegistration() {
         if (field === 'lastName') setLastNameError('Last name is required')
         if (field === 'email') setEmailError('Email is required')
         if (field === 'confirmEmail') setConfirmEmailError('Confirm Email is required')
-  if (field === 'type') setTypeError('Type is required')
-  if (field === 'role') setRoleError('Role is required')
+        if (field === 'type') setTypeError('Type is required')
+        if (field === 'role') setRoleError('Role is required')
         missingFields.push(fieldLabels[field])
         continue
       }
@@ -185,8 +185,8 @@ export function UserRegistration() {
       const data = await res.json()
       if (res.ok) {
         setSuccess("User registered successfully!")
-  // show compact success toast (small green text)
-  toast({ description: "User registered successfully." })
+        // show compact success toast (small green text)
+        toast({ description: "User registered successfully." })
         handleReset()
       } else {
         setError(data.message || "Registration failed")
@@ -239,10 +239,10 @@ export function UserRegistration() {
           className="bg-blue-900 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md flex items-center h-9"
           onClick={() => setShowAddUser(true)}
         >
-          <ArrowLeft size={16} className="mr-1"/>Back
+          <ArrowLeft size={16} className="mr-1" />Back
         </Button>
       </div>
-  <Card className="shadow-lg border-0 mx-auto w-full max-w-2xl">
+      <Card className="shadow-lg border-0 mx-auto w-full max-w-2xl">
         <CardHeader className="px-4 sm:px-6 lg:px-8 4k:px-6">
           <CardTitle className="text-lg sm:text-xl md:text-2xl font-semibold">Register New User</CardTitle>
         </CardHeader>
@@ -263,6 +263,7 @@ export function UserRegistration() {
                     <SelectItem value="company">Company</SelectItem>
                   </SelectContent>
                 </Select>
+                {typeError ? <p className="text-xs mt-1 text-red-500">{typeError}</p> : null}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="existing-contacts" className="text-sm font-medium text-gray-700">
@@ -495,6 +496,7 @@ export function UserRegistration() {
                     <SelectItem value="user">User</SelectItem>
                   </SelectContent>
                 </Select>
+                {roleError ? <p className="text-xs mt-1 text-red-500">{roleError}</p> : null}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="userGroup" className="text-sm font-medium text-gray-700">
