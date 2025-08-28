@@ -3,6 +3,7 @@
 import React from "react"
 import { useEffect } from "react"
 import { useState } from "react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Bell, Search, User, ChevronDown, ChevronRight } from "lucide-react"
 import { Button } from "./ui/button"
 import { Avatar, AvatarFallback } from "./ui/avatar"
@@ -20,8 +21,12 @@ interface ConvergenceLayoutProps {
 }
 
 export function ConvergenceLayout({ children }: ConvergenceLayoutProps) {
-  const [activeModule, setActiveModule] = useState("contact-registration")
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const [activeModule, setActiveModule] = useState(() => searchParams?.get("module") || "contact-registration")
   const [expandedMenus, setExpandedMenus] = useState<string[]>(["administration", "document-transfer"])
+  const [contentKey, setContentKey] = useState(0)
 
   const toggleMenu = (menuId: string) => {
     setExpandedMenus((prev) => (prev.includes(menuId) ? prev.filter((id) => id !== menuId) : [...prev, menuId]))
@@ -72,7 +77,17 @@ export function ConvergenceLayout({ children }: ConvergenceLayoutProps) {
             if (hasChildren) {
               toggleMenu(item.id)
             } else {
-              setActiveModule(item.id)
+              if (item.id === activeModule) {
+                // force remount the content so clicking repeatedly re-triggers logic
+                setContentKey((k) => k + 1)
+              } else {
+                setActiveModule(item.id)
+                setContentKey(0)
+                // push query param to update URL without full reload
+                const params = new URLSearchParams(searchParams?.toString() || "")
+                params.set("module", item.id)
+                router.push(`${pathname}?${params.toString()}`)
+              }
             }
           }}
         >
@@ -86,6 +101,33 @@ export function ConvergenceLayout({ children }: ConvergenceLayoutProps) {
       </div>
     )
   }
+
+  // Sync activeModule with URL (?module=...) on mount and whenever the URL changes
+  useEffect(() => {
+    const fromUrl = searchParams?.get("module")
+    if (fromUrl && fromUrl !== activeModule) {
+      setActiveModule(fromUrl)
+    }
+  }, [searchParams, activeModule])
+
+  // Auto-expand parent menus for the current activeModule so nested items are visible
+  useEffect(() => {
+    const findPath = (items: any[], targetId: string, path: string[] = []): string[] | null => {
+      for (const it of items) {
+        const nextPath = [...path, it.id]
+        if (it.id === targetId) return path // return only parent ids
+        if (it.children) {
+          const res = findPath(it.children, targetId, nextPath)
+          if (res) return nextPath.slice(0, nextPath.length - 1) // parents only
+        }
+      }
+      return null
+    }
+    const parents = findPath(menuItems as any[], activeModule)
+    if (parents && parents.length) {
+      setExpandedMenus(prev => Array.from(new Set([...prev, ...parents])))
+    }
+  }, [activeModule])
 
   const renderContent = () => {
     switch (activeModule) {
@@ -160,7 +202,7 @@ export function ConvergenceLayout({ children }: ConvergenceLayoutProps) {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6">{renderContent()}</main>
+        <main key={`${activeModule}-${contentKey}`} className="flex-1 p-6">{renderContent()}</main>
       </div>
     </div>
   )

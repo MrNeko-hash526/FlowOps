@@ -6,7 +6,7 @@ import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Badge } from "./ui/badge"
 import { Card, CardContent } from "./ui/card"
-import { Search } from "lucide-react"
+import { ArrowRight, Search } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 import { UserRegistration } from "./user-registration"
 
@@ -167,7 +167,8 @@ export function UserManagement() {
         <Button
           className="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2"
           onClick={() => setShowAddUser(true)}
-        >Add User</Button>
+        >Add User <ArrowRight />
+        </Button>
       </div>
 
       {/* Search */}

@@ -37,6 +37,11 @@ exports.submit = async (req, res) => {
       return res.status(400).json({ error: 'Form data required' })
     }
 
+    // Remove any unexpected 'files' property coming from client
+    if (fields && Object.prototype.hasOwnProperty.call(fields, 'files')) {
+      delete fields.files
+    }
+
     // Map incoming fields to schema fields
     const mapped = {
       type: fields.type || null,
@@ -48,6 +53,53 @@ exports.submit = async (req, res) => {
       phoneNo: fields.phoneNo || null,
       role: fields.role || null,
       userGroup: fields.userGroup || 'None Selected'
+    }
+
+    // Ensure mapped object does not accidentally include files
+    if (Object.prototype.hasOwnProperty.call(mapped, 'files')) {
+      delete mapped.files
+    }
+
+    // Server-side validation: mirror client-side rules
+    const errors = {}
+    const requiredFields = ["type", "firstName", "lastName", "email", "confirmEmail", "role"]
+    for (const f of requiredFields) {
+      const v = mapped[f]
+      if (!v || String(v) === "") {
+        errors[f] = `${f} is required`
+      } else if (String(v) !== String(v).trim()) {
+        errors[f] = `${f} must not have leading or trailing spaces`
+      }
+    }
+
+    // simple email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (mapped.email && !emailRegex.test(String(mapped.email))) {
+      errors.email = 'Please enter a valid email address'
+    }
+    if (mapped.email && mapped.confirmEmail && String(mapped.email) !== String(mapped.confirmEmail)) {
+      errors.confirmEmail = 'Email and Confirm Email do not match'
+    }
+
+    // Names must not contain digits
+    const nameHasDigits = /\d/
+    if (mapped.firstName && nameHasDigits.test(String(mapped.firstName))) {
+      errors.firstName = 'Names must not contain numbers'
+    }
+    if (mapped.lastName && nameHasDigits.test(String(mapped.lastName))) {
+      errors.lastName = 'Names must not contain numbers'
+    }
+
+    // phone: allow E.164 or numeric; require at least 10 digits
+    if (mapped.phoneNo) {
+      const digits = String(mapped.phoneNo).replace(/\D/g, '')
+      if (digits.length < 10) {
+        errors.phoneNo = 'Phone number must have at least 10 digits'
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      return res.status(400).json({ success: false, errors })
     }
 
     // Prisma path
@@ -77,8 +129,12 @@ exports.submit = async (req, res) => {
     const submission = {
       id: Date.now().toString(),
       createdAt: new Date().toISOString(),
-      fields: mapped,
-      files: []
+      fields: mapped
+    }
+
+    // Extra safeguard: ensure no `files` property exists on the submission
+    if (Object.prototype.hasOwnProperty.call(submission, 'files')) {
+      delete submission.files
     }
 
     submissions.push(submission)

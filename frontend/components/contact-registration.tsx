@@ -10,6 +10,8 @@ import { Textarea } from "./ui/textarea"
 import { Card, CardContent } from "./ui/card"
 import { CalendarDays } from "lucide-react"
 import { ContactManagement } from "./contact-management"
+import { ArrowLeft } from "lucide-react";
+
 
 export function ContactRegistration() {
   const [formData, setFormData] = useState({
@@ -46,6 +48,7 @@ export function ContactRegistration() {
     report: "",
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   const validate = () => {
     const errs: Record<string, string> = {}
@@ -56,6 +59,22 @@ export function ContactRegistration() {
     if (formData.firstName && formData.lastName && formData.firstName.trim() === formData.lastName.trim()) errs.lastName = 'First and last name cannot be the same'
     if (!formData.status || formData.status.trim() === '') errs.status = 'Status is required'
     if (!formData.group || formData.group.trim() === '') errs.group = 'Group is required'
+    if (!formData.officeNumber || String(formData.officeNumber).trim() === '') errs.officeNumber = 'Office number is required'
+    if (!formData.city || formData.city.trim() === '') errs.city = 'City is required'
+    if (!formData.state || formData.state.trim() === '') errs.state = 'State is required'
+    if (!formData.zip || String(formData.zip).trim() === '') errs.zip = 'Zip is required'
+    if (!formData.dateOfBirth || String(formData.dateOfBirth).trim() === '') errs.dateOfBirth = 'Date of birth is required'
+    if (!formData.workAnniversary || String(formData.workAnniversary).trim() === '') errs.workAnniversary = 'Work anniversary is required'
+
+    // Names should not contain numbers or special characters (allow spaces, apostrophes, hyphens)
+    const nameRegex = /^[A-Za-z\s'-]+$/
+    if (formData.firstName && !nameRegex.test(formData.firstName.trim())) {
+      errs.firstName = 'Only letters, spaces, apostrophes, and hyphens are allowed'
+    }
+    const primaryChildName = (formData.childrensNames && formData.childrensNames[0]) || ''
+    if (primaryChildName && !nameRegex.test(primaryChildName.trim())) {
+      errs.childrensName = "Only letters, spaces, apostrophes, and hyphens are allowed"
+    }
 
     // Email - stricter
     // Email is required and validated
@@ -75,30 +94,35 @@ export function ContactRegistration() {
       errs.addressLine1 = 'Address Line 1 is required'
     }
 
-    // Phone validation: numeric only and max 10 digits
+
+
     // if (formData.cellNumber) {
-    //   const digits = formData.cellNumber.replace(/\D/g, '')
-    //   if (!/^\d+$/.test(digits)) errs.cellNumber = 'Phone number must contain only digits'
-    //   else if (digits.length > 10) errs.cellNumber = 'Phone number cannot exceed 10 digits'
+    //   const value = formData.cellNumber.trim();
+
+    //   // must match + followed by digits, or just digits
+    //   if (!/^\+?\d+$/.test(value)) {
+    //     errs.cellNumber = 'Phone number must contain only digits and may start with +';
+    //   }
+    //   else if (value.startsWith('+')) {
+    //     if (value.length < 12 || value.length > 13) {
+    //       errs.cellNumber = 'Phone number must be 12 to 13 characters long including +';
+    //     }
+    //   }
+    //   else {
+    //     if (value.length < 12 || value.length > 13) {
+    //       errs.cellNumber = 'Phone number must be 12 to 13 digits long';
+    //     }
+    //   }
     // }
 
-    if (formData.cellNumber) {
-      const value = formData.cellNumber.trim();
+    const number = (formData.cellNumber || "").trim();
 
-      // must match + followed by digits, or just digits
-      if (!/^\+?\d+$/.test(value)) {
-        errs.cellNumber = 'Phone number must contain only digits and may start with +';
-      }
-      else if (value.startsWith('+')) {
-        if (value.length < 12 || value.length > 13) {
-          errs.cellNumber = 'Phone number must be 12 to 13 characters long including +';
-        }
-      }
-      else {
-        if (value.length < 12 || value.length > 13) {
-          errs.cellNumber = 'Phone number must be 12 to 13 digits long';
-        }
-      }
+    if (!number) {
+      errs.cellNumber = "Cell number is required";
+    } else if (!/^\+?\d{1,}$/.test(number)) {
+      errs.cellNumber = "Must contain only digits and may start with +";
+    } else if (number.length < 12 || number.length > 13) {
+      errs.cellNumber = "Phone number must be 12–13 characters long";
     }
 
 
@@ -164,11 +188,11 @@ export function ContactRegistration() {
       })
       const data = await res.json()
       if (!res.ok) {
-        // show server-side error
-        alert(data.error || 'Submission failed')
+        // show server-side error inline
+        setSubmitMessage({ type: 'error', text: data.error || 'Submission failed' })
       } else {
         // success
-        alert('Contact registered successfully')
+        setSubmitMessage({ type: 'success', text: 'Contact registered successfully' })
         setFormData({
           type: "",
           existingContacts: "",
@@ -205,7 +229,7 @@ export function ContactRegistration() {
       }
     } catch (err) {
       console.error(err)
-      alert('Network error while submitting form')
+      setSubmitMessage({ type: 'error', text: 'Network error while submitting form' })
     }
   }
   const [showAddUser, setShowAddUser] = useState(false)
@@ -224,11 +248,16 @@ export function ContactRegistration() {
           className="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2"
           onClick={() => setShowAddUser(true)}
         >
-          View Registeration</Button>
+          {/* &lt;-*/} <ArrowLeft size={18} />  BACK </Button>
       </div>
 
       <Card className="shadow-lg border-0">
         <CardContent className="p-8">
+          {submitMessage && (
+            <div className={`${submitMessage.type === 'error' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-green-50 text-green-700 border-green-200'} border rounded px-4 py-2 mb-4`}>
+              {submitMessage.text}
+            </div>
+          )}
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Type and Existing Contacts */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -270,7 +299,7 @@ export function ContactRegistration() {
                   Pronouns:
                 </Label>
                 <Select>
-                  <SelectTrigger className="h-10">
+                  <SelectTrigger className="h-10 w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -287,9 +316,25 @@ export function ContactRegistration() {
                 <Input
                   id="firstName"
                   placeholder="First Name"
-                  className="h-10"
+                  className="h-10 w-full"
                   value={formData.firstName}
-                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                  inputMode="text"
+                  pattern="[A-Za-z]*"
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setFormData({ ...formData, firstName: value })
+                    const nameRegex = /^[A-Za-z\s'-]+$/
+                    if (value && nameRegex.test(value.trim())) {
+                      setErrors(prev => { const p = { ...prev }; delete p.firstName; return p })
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const value = e.target.value.trim()
+                    const nameRegex = /^[A-Za-z\s'-]+$/
+                    if (value && !nameRegex.test(value)) {
+                      setErrors(prev => ({ ...prev, firstName: 'Only letters, spaces, apostrophes, and hyphens are allowed' }))
+                    }
+                  }}
                 />
                 {errors.firstName && <p className="text-sm text-red-600">{errors.firstName}</p>}
               </div>
@@ -300,9 +345,25 @@ export function ContactRegistration() {
                 <Input
                   id="lastName"
                   placeholder="Last Name"
-                  className="h-10"
+                  className="h-10 w-full"
                   value={formData.lastName}
-                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  inputMode="text"
+                  pattern="[A-Za-z]*"
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setFormData({ ...formData, lastName: value })
+                    const nameRegex = /^[A-Za-z\s'-]+$/
+                    if (value && nameRegex.test(value.trim())) {
+                      setErrors(prev => { const p = { ...prev }; delete p.lastName; return p })
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const value = e.target.value.trim()
+                    const nameRegex = /^[A-Za-z\s'-]+$/
+                    if (value && !nameRegex.test(value)) {
+                      setErrors(prev => ({ ...prev, lastName: 'Only letters, spaces, apostrophes, and hyphens are allowed' }))
+                    }
+                  }}
                 />
                 {errors.lastName && <p className="text-sm text-red-600">{errors.lastName}</p>}
               </div>
@@ -313,7 +374,7 @@ export function ContactRegistration() {
                 <Input
                   id="suffix"
                   placeholder="Suffix"
-                  className="h-10"
+                  className="h-10 w-full"
                   value={formData.suffix}
                   onChange={(e) => setFormData({ ...formData, suffix: e.target.value })}
                 />
@@ -325,7 +386,7 @@ export function ContactRegistration() {
                 <Input
                   id="title"
                   placeholder="Title"
-                  className="h-10"
+                  className="h-10 w-full"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 />
@@ -335,7 +396,7 @@ export function ContactRegistration() {
                   Status: <span className="text-red-500">*</span>
                 </Label>
                 <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
-                  <SelectTrigger className="h-10">
+                  <SelectTrigger className="h-10 w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -374,11 +435,11 @@ export function ContactRegistration() {
                 <div className="flex items-center gap-2">
                   <Input
                     id="email"
-                    type="email"
+                    type="text"
                     placeholder="Email Address"
-                    className="h-10 flex-1"
+                    className="h-10 flex-1 w-full"
                     value={(formData.emails && formData.emails[0]) || ''}
-                    required
+                    // required
                     onChange={(e) => setFormData(prev => ({ ...prev, emails: [e.target.value, ...(prev.emails?.slice(1) || [])] }))}
                     onBlur={() => {
                       const email = ((formData.emails && formData.emails[0]) || '').trim()
@@ -397,7 +458,7 @@ export function ContactRegistration() {
                 {formData.emails && formData.emails.slice(1).map((em, idx) => (
                   <div key={idx} className="flex items-center gap-2 mt-2">
                     <Input
-                      type="email"
+                      type="text"
                       placeholder={`Email ${idx + 2}`}
                       className="h-10 flex-1"
                       value={em}
@@ -410,10 +471,13 @@ export function ContactRegistration() {
                     <Button type="button" className="h-10 w-10 p-0" onClick={() => setFormData(prev => ({ ...prev, emails: prev.emails.filter((_, i) => i !== idx + 1) }))}>-</Button>
                   </div>
                 ))}
+
               </div>
+
+
               <div className="space-y-2">
                 <Label htmlFor="office" className="text-sm font-medium text-gray-700">
-                  Office Number:
+                  Office Number: <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="office"
@@ -421,55 +485,73 @@ export function ContactRegistration() {
                   className="h-10"
                   value={formData.officeNumber}
                   inputMode="numeric"
-                  pattern="\d*"
                   onChange={(e) => {
                     const digits = e.target.value.replace(/\D/g, '')
                     setFormData({ ...formData, officeNumber: digits })
+                    if (digits) setErrors(prev => { const p = { ...prev }; delete p.officeNumber; return p })
+                  }}
+                  onBlur={() => {
+                    if (!formData.officeNumber || String(formData.officeNumber).trim() === '') {
+                      setErrors(prev => ({ ...prev, officeNumber: 'Office number is required' }))
+                    }
                   }}
                 />
+                {errors.officeNumber && <p className="text-sm text-red-600">{errors.officeNumber}</p>}
               </div>
+
+
               <div className="space-y-2">
                 <Label htmlFor="cell" className="text-sm font-medium text-gray-700">
-                  Cell Number:
+                  Cell Number: <span className="text-red-500">*</span>
                 </Label>
-                {/* <Input
-                  id="cell"
-                  placeholder="Cell Number"
-                  className="h-10"
-                  value={formData.cellNumber}
-                  inputMode="numeric"
-                  pattern="\d*"
-                  maxLength={13}
-                  onChange={(e) => {
-                    const digits = e.target.value.replace(/\D/g, '')
-                    setFormData({ ...formData, cellNumber: digits })
-                  }}
-                /> */}
-                <Input
-                  id="cell"
-                  placeholder="Cell Number"
-                  className="h-10"
-                  value={formData.cellNumber}
-                  inputMode="numeric"
-                  maxLength={13}
-                  onChange={(e) => {
-                    let val = e.target.value;
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="cell"
+                    placeholder="Cell Number"
+                    className="h-10"
+                    value={formData.cellNumber}
+                    inputMode="numeric"
+                    maxLength={13}
+                    onChange={(e) => {
+                      let val = e.target.value;
 
-                    // Allow "+" only at the beginning
-                    if (val.startsWith('+')) {
-                      val = '+' + val.slice(1).replace(/\D/g, '');
-                    } else {
-                      val = val.replace(/\D/g, '');
-                    }
+                      // Allow "+" only at the beginning
+                      if (val.startsWith('+')) {
+                        val = '+' + val.slice(1).replace(/\D/g, '');
+                      } else {
+                        val = val.replace(/\D/g, '');
+                      }
 
-                    // Enforce max 13 length
-                    if (val.length <= 13) {
-                      setFormData({ ...formData, cellNumber: val });
-                    }
-                  }}
-                />
+                      // Enforce max 13 length
+                      if (val.length <= 13) {
+                        setFormData({ ...formData, cellNumber: val });
+                      }
+
+                    }}
+                    onBlur={() => {
+                      const number = (formData.cellNumber || "").trim();
+
+                      if (!number) {
+                        setErrors((prev) => ({ ...prev, cellNumber: "Cell number is required" }));
+                      } else if (!/^\+?\d+$/.test(number)) {
+                        setErrors((prev) => ({ ...prev, cellNumber: "Must contain only digits and may start with +" }));
+                      } else if (number.length < 12 || number.length > 13) {
+                        setErrors((prev) => ({ ...prev, cellNumber: "Phone number must be 12–13 characters long" }));
+                      } else {
+                        // ✅ clear previous error if validation passes
+                        setErrors((prev) => {
+                          const p = { ...prev };
+                          delete p.cellNumber;
+                          return p;
+                        });
+                      }
+                    }}
+                  />
+                </div>
                 {errors.cellNumber && <p className="text-sm text-red-600">{errors.cellNumber}</p>}
               </div>
+
+
               <div className="space-y-2">
                 <Label htmlFor="group" className="text-sm font-medium text-gray-700">
                   Group: <span className="text-red-500">*</span>
@@ -497,8 +579,14 @@ export function ContactRegistration() {
                     placeholder="Address 1"
                     className="h-10 flex-1"
                     value={(formData.addressLines && formData.addressLines[0]) || ''}
-                    required
-                    onChange={(e) => setFormData(prev => ({ ...prev, addressLines: [e.target.value, ...(prev.addressLines?.slice(1) || [])] }))}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, addressLines: [e.target.value, ...(prev.addressLines?.slice(1) || [])] }))
+                      if (e.target.value.trim()) setErrors(prev => { const p = { ...prev }; delete p.addressLine1; return p })
+                    }}
+                    onBlur={() => {
+                      const al1 = ((formData.addressLines && formData.addressLines[0]) || '').trim()
+                      if (!al1) setErrors(prev => ({ ...prev, addressLine1: 'Address Line 1 is required' }))
+                    }}
                   />
                   <Button type="button" className="h-10 w-10 p-0" onClick={() => setFormData(prev => ({ ...prev, addressLines: [...(prev.addressLines || ['']), ''] }))}>+</Button>
                 </div>
@@ -533,22 +621,32 @@ export function ContactRegistration() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="city" className="text-sm font-medium text-gray-700">
-                  City:
+                  City: <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="city"
                   placeholder="City"
                   className="h-10"
                   value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, city: e.target.value })
+                    if (e.target.value.trim()) setErrors(prev => { const p = { ...prev }; delete p.city; return p })
+                  }}
+                  onBlur={() => {
+                    if (!formData.city || formData.city.trim() === '') setErrors(prev => ({ ...prev, city: 'City is required' }))
+                  }}
                 />
+                {errors.city && <p className="text-sm text-red-600">{errors.city}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="state" className="text-sm font-medium text-gray-700">
-                  State:
+                  State: <span className="text-red-500">*</span>
                 </Label>
-                <Select>
-                  <SelectTrigger className="h-10">
+                <Select value={formData.state} onValueChange={(v) => {
+                  setFormData({ ...formData, state: v })
+                  if (v) setErrors(prev => { const p = { ...prev }; delete p.state; return p })
+                }}>
+                  <SelectTrigger className="h-10 w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -557,6 +655,7 @@ export function ContactRegistration() {
                     <SelectItem value="TX">Texas</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.state && <p className="text-sm text-red-600">{errors.state}</p>}
               </div>
             </div>
 
@@ -564,27 +663,31 @@ export function ContactRegistration() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="zip" className="text-sm font-medium text-gray-700">
-                  Zip:
+                  Zip: <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="zip"
                   placeholder="Zip"
-                  className="h-10"
+                  className="h-10 w-full"
                   value={formData.zip}
                   inputMode="numeric"
-                  pattern="\d*"
                   onChange={(e) => {
                     const digits = e.target.value.replace(/\D/g, '')
                     setFormData({ ...formData, zip: digits })
+                    if (digits) setErrors(prev => { const p = { ...prev }; delete p.zip; return p })
+                  }}
+                  onBlur={() => {
+                    if (!formData.zip || String(formData.zip).trim() === '') setErrors(prev => ({ ...prev, zip: 'Zip is required' }))
                   }}
                 />
+                {errors.zip && <p className="text-sm text-red-600">{errors.zip}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="report" className="text-sm font-medium text-gray-700">
                   Report:
                 </Label>
                 <Select>
-                  <SelectTrigger className="h-10">
+                  <SelectTrigger className="h-10 w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -600,7 +703,7 @@ export function ContactRegistration() {
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="dob" className="text-sm font-medium text-gray-700">
-                  Date Of Birth:
+                  Date Of Birth:  <span className="text-red-500">*</span>
                 </Label>
                 <div className="relative">
                   <Input
@@ -608,14 +711,21 @@ export function ContactRegistration() {
                     type="date"
                     className="h-10"
                     value={formData.dateOfBirth}
-                    onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                    onChange={(e) => {
+                      setFormData({ ...formData, dateOfBirth: e.target.value })
+                      if (e.target.value) setErrors(prev => { const p = { ...prev }; delete p.dateOfBirth; return p })
+                    }}
+                    onBlur={() => {
+                      if (!formData.dateOfBirth || String(formData.dateOfBirth).trim() === '') setErrors(prev => ({ ...prev, dateOfBirth: 'Date of birth is required' }))
+                    }}
                   />
                   {/* <CalendarDays className="absolute right-3 top-3 h-4 w-4 text-gray-400" /> */}
                 </div>
+                {errors.dateOfBirth && <p className="text-sm text-red-600">{errors.dateOfBirth}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="anniversary" className="text-sm font-medium text-gray-700">
-                  Work Anniversary:
+                  Work Anniversary:  <span className="text-red-500">*</span>
                 </Label>
                 <div className="relative">
                   <Input
@@ -623,17 +733,24 @@ export function ContactRegistration() {
                     type="date"
                     className="h-10"
                     value={formData.workAnniversary}
-                    onChange={(e) => setFormData({ ...formData, workAnniversary: e.target.value })}
+                    onChange={(e) => {
+                      setFormData({ ...formData, workAnniversary: e.target.value })
+                      if (e.target.value) setErrors(prev => { const p = { ...prev }; delete p.workAnniversary; return p })
+                    }}
+                    onBlur={() => {
+                      if (!formData.workAnniversary || String(formData.workAnniversary).trim() === '') setErrors(prev => ({ ...prev, workAnniversary: 'Work anniversary is required' }))
+                    }}
                   />
                   {/* <CalendarDays className="absolute right-3 top-3 h-4 w-4 text-gray-400" /> */}
                 </div>
+                {errors.workAnniversary && <p className="text-sm text-red-600">{errors.workAnniversary}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="marital" className="text-sm font-medium text-gray-700">
                   Marital Status:
                 </Label>
                 <Select>
-                  <SelectTrigger className="h-10">
+                  <SelectTrigger className="h-10 w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -652,8 +769,25 @@ export function ContactRegistration() {
                   placeholder="Spouse Name"
                   className="h-10"
                   value={formData.spouseName}
-                  onChange={(e) => setFormData({ ...formData, spouseName: e.target.value })}
+                  inputMode="text"
+                  pattern="[A-Za-z]*"
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setFormData({ ...formData, spouseName: value })
+                    const nameRegex = /^[A-Za-z\s'-]+$/
+                    if (!value || nameRegex.test(value.trim())) {
+                      setErrors(prev => { const p = { ...prev }; delete p.spouseName; return p })
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const value = e.target.value.trim()
+                    const nameRegex = /^[A-Za-z\s'-]+$/
+                    if (value && !nameRegex.test(value)) {
+                      setErrors(prev => ({ ...prev, spouseName: 'Only letters, spaces, apostrophes, and hyphens are allowed' }))
+                    }
+                  }}
                 />
+                {errors.spouseName && <p className="text-sm text-red-600">{errors.spouseName}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="children" className="text-sm font-medium text-gray-700 flex items-center gap-1">
@@ -665,10 +799,25 @@ export function ContactRegistration() {
                     placeholder="Children's Name"
                     className="h-10 flex-1"
                     value={(formData.childrensNames && formData.childrensNames[0]) || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, childrensNames: [e.target.value, ...(prev.childrensNames?.slice(1) || [])] }))}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      setFormData(prev => ({ ...prev, childrensNames: [value, ...(prev.childrensNames?.slice(1) || [])] }))
+                      const nameRegex = /^[A-Za-z\s'-]+$/
+                      if (!value || nameRegex.test(value.trim())) {
+                        setErrors(prev => { const p = { ...prev }; delete p.childrensName; return p })
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const value = e.target.value.trim()
+                      const nameRegex = /^[A-Za-z\s'-]+$/
+                      if (value && !nameRegex.test(value)) {
+                        setErrors(prev => ({ ...prev, childrensName: "Only letters, spaces, apostrophes, and hyphens are allowed" }))
+                      }
+                    }}
                   />
                   <Button type="button" className="h-10 w-10 p-0" onClick={() => setFormData(prev => ({ ...prev, childrensNames: [...(prev.childrensNames || ['']), ''] }))}>+</Button>
                 </div>
+                {errors.childrensName && <p className="text-sm text-red-600">{errors.childrensName}</p>}
                 {formData.childrensNames && formData.childrensNames.slice(1).map((c, idx) => (
                   <div key={idx} className="flex items-center gap-2 mt-2">
                     <Input
@@ -747,15 +896,15 @@ export function ContactRegistration() {
                 <Label htmlFor="endDate" className="text-sm font-medium text-gray-700">
                   End Date:
                 </Label>
-                <div className="relative">
+                <div className="relative ">
                   <Input
                     id="endDate"
                     type="date"
-                    className="h-10"
+                    className="h-10 "
                     value={formData.endDate}
                     onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
                   />
-                  <CalendarDays className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+
                 </div>
               </div>
             </div>
@@ -769,8 +918,8 @@ export function ContactRegistration() {
                 <Textarea
                   id="notes"
                   placeholder="Notes"
-                  rows={4}
-                  className="resize-none"
+                  rows={5}
+                  className="resize-none h-30"
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 />
