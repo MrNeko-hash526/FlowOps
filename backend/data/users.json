@@ -5,5 +5,23 @@
     "lastName": "admin",
     "email": "admin1@g.com",
     "password": "$2a$10$ecYL.Cy.ptS/N9CwAumxOO5pm1NRePkOtO2ymFlMuSIkpK76lnsTq"
+  },
+  {
+    "id": "1756380170415",
+    "firstName": "Saurabh",
+    "lastName": "admin",
+    "email": "admin11@g.com",
+    "password": "$2a$10$CPO8FtwzMwuZOMlW8q4qz.gsWfmGdAeO9T3VHG1CJyutQA8cKgi5.",
+    "ipAddress": "::1",
+    "macAddress": null
+  },
+  {
+    "id": "1756380505413",
+    "firstName": "qwer",
+    "lastName": "qwer",
+    "email": "admin1123@gmail.com",
+    "password": "$2a$10$t/ajkFnHby6yWs5X99ProOiQTo2qrnW3pQB1JBusSy5jN8a5Ut9I.",
+    "ipAddress": "127.0.0.1",
+    "macAddress": null
   }
 ]

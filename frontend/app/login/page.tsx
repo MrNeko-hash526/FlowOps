@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ConvergenceLogo } from "@/components/convergence-logo"
-
+const api_url = process.env.API_URL;
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -35,7 +35,7 @@ export default function LoginPage() {
 
     setIsLoading(true)
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`http://${api_url}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

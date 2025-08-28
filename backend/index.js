@@ -8,8 +8,18 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 // duplicate import removed
 // Middleware
-app.use(cors())
+// app.use(cors())
+app.use(
+  cors({
+    origin: "*", // allow requests from all domains / IPs
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+
 app.use(express.json());
+app.set('trust proxy', true); 
 
 // Basic route
 app.get('/', (req, res) => {
