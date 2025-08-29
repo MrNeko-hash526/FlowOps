@@ -2,9 +2,20 @@ const fs = require('fs')
 const path = require('path')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const { getPrisma } = require('../config/db')
 
 const USERS_FILE = path.join(__dirname, '..', 'data', 'users.json')
+
+// If DATABASE_URL is set, use Prisma client
+let prisma = null
+if (process.env.DATABASE_URL) {
+  try {
+    const { PrismaClient } = require('@prisma/client')
+    prisma = new PrismaClient()
+    console.log('✅ Prisma client initialized in authController')
+  } catch (err) {
+    console.warn('⚠️ Prisma client not available, using file storage:', err.message)
+  }
+}
 
 function readUsers() {
   try {
@@ -57,33 +68,31 @@ function getClientIp(req) {
 exports.signup = async (req, res) => {
   try {
     const { firstName, lastName, email, password, macAddress } = req.body
-    
-    console.log('🔍 Signup attempt for:', email);
-    
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password required' })
     }
 
     const ipAddress = getClientIp(req);
-    const prisma = getPrisma()
+    console.log('🔍 Signup attempt for:', email);
 
-    console.log('🔍 Prisma available:', !!prisma);
-
-    // Try Prisma first
+    // Prisma path - use lowercase 'usersignup' to match schema
     if (prisma) {
       try {
         console.log('🔍 Checking existing user in database...');
-        const existing = await prisma.userSignup.findUnique({ where: { email } })
+        const existing = await prisma.usersignup.findUnique({ where: { email } })
         if (existing) {
           return res.status(409).json({ error: 'User already exists' })
         }
 
-        console.log('🔍 Hashing password...');
+        console.log('🔍 Creating user in database...');
         const hashed = await bcrypt.hash(password, 10)
         
-        console.log('🔍 Creating user in database...');
-        const user = await prisma.userSignup.create({
+        // Generate ID for the user
+        const userId = Date.now().toString()
+        
+        const user = await prisma.usersignup.create({
           data: {
+            id: userId,
             firstName: firstName || null,
             lastName: lastName || null,
             email,
@@ -112,16 +121,15 @@ exports.signup = async (req, res) => {
             macAddress: user.macAddress
           }
         })
-      } catch (dbError) {
-        console.error('❌ Database signup error:', dbError.message);
+      } catch (err) {
+        console.error('❌ Database signup error:', err.message);
         console.log('📁 Falling back to file storage...');
         // Fall through to file storage
       }
     }
 
-    // Fallback to file storage
+    // Fallback file store
     console.log('📁 Using file storage for signup...');
-    
     const users = readUsers()
     const exists = users.find(u => u.email.toLowerCase() === email.toLowerCase())
     if (exists) {
@@ -139,7 +147,6 @@ exports.signup = async (req, res) => {
       macAddress: macAddress || null,
       createdAt: new Date().toISOString()
     }
-    
     users.push(user)
     writeUsers(users)
 
@@ -162,7 +169,6 @@ exports.signup = async (req, res) => {
         macAddress: user.macAddress
       }
     })
-
   } catch (error) {
     console.error('💥 Signup error:', error.message);
     res.status(500).json({ error: 'Internal server error: ' + error.message })
@@ -176,12 +182,12 @@ exports.login = async (req, res) => {
       return res.status(400).json({ error: 'Email and password required' })
     }
 
-    const prisma = getPrisma()
+    console.log('🔍 Login attempt for:', email);
 
-    // Try database first
+    // Prisma path - use lowercase 'usersignup' to match schema
     if (prisma) {
       try {
-        const user = await prisma.userSignup.findUnique({ where: { email } })
+        const user = await prisma.usersignup.findUnique({ where: { email } })
         if (!user) {
           console.log('User not found in database, checking file storage...');
         } else {
@@ -209,12 +215,12 @@ exports.login = async (req, res) => {
           })
         }
       } catch (err) {
-        console.error('Database login error:', err.message);
-        console.log('Falling back to file storage...');
+        console.error('❌ Database login error:', err.message);
+        console.log('📁 Falling back to file storage...');
       }
     }
 
-    // Fallback to file storage
+    // Fallback file store
     console.log('📁 Using file storage for login...');
     const users = readUsers()
     const user = users.find(u => u.email.toLowerCase() === email.toLowerCase())

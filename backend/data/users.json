@@ -8,5 +8,15 @@
     "ipAddress": "127.0.0.1",
     "macAddress": null,
     "createdAt": "2025-08-29T11:08:03.778Z"
+  },
+  {
+    "id": "1756466289804",
+    "firstName": "meow",
+    "lastName": "billi",
+    "email": "billi@gmail.com",
+    "password": "$2a$10$830pcW3STIVsU.oM7j/OPu3su8JlnU712DaD7dZndj.Q06PO6sEgK",
+    "ipAddress": "127.0.0.1",
+    "macAddress": null,
+    "createdAt": "2025-08-29T11:18:09.804Z"
   }
 ]
