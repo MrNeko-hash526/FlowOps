@@ -201,14 +201,14 @@ export function UserRegistration() {
           <CardTitle className="text-lg sm:text-xl md:text-2xl font-semibold">Register New User</CardTitle>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 lg:p-8">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-6 divide-y divide-gray-200" onSubmit={handleSubmit}>
             {/* Arrange fields into 3 rows, 3 columns each on md+ screens */}
             {/* Row 1: Type, Existing Contacts, Role */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4">
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">Type: <span className="text-red-500">*</span></Label>
                 <Select value={formData.type} onValueChange={(value) => { setFieldError("type"); setFormData({ ...formData, type: value }) }}>
-                  <SelectTrigger className={`h-9 md:h-10 w-full border rounded-md bg-white ${errors.type ? "border-red-500" : "border-gray-200"}`}>
+                  <SelectTrigger className={`h-9 md:h-9 w-full border rounded-md bg-white ${errors.type ? "border-red-500" : "border-gray-200"}`}>
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -222,7 +222,7 @@ export function UserRegistration() {
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">Existing Contacts:</Label>
                 <Select value={formData.existingContacts} onValueChange={(value) => setFormData({ ...formData, existingContacts: value })}>
-                  <SelectTrigger className="h-9 md:h-10 w-full border border-gray-200 rounded-md bg-white">
+                  <SelectTrigger className="h-9 md:h-9 w-full border border-gray-200 rounded-md bg-white">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -235,7 +235,7 @@ export function UserRegistration() {
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">Role: <span className="text-red-500">*</span></Label>
                 <Select value={formData.role} onValueChange={(value) => { setFieldError("role"); setFormData({ ...formData, role: value }) }}>
-                  <SelectTrigger className={`h-9 md:h-10 w-full border rounded-md bg-white ${errors.role ? "border-red-500" : "border-gray-200"}`}>
+                  <SelectTrigger className={`h-9 md:h-9 w-full border rounded-md bg-white ${errors.role ? "border-red-500" : "border-gray-200"}`}>
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -249,12 +249,12 @@ export function UserRegistration() {
             </div>
 
             {/* Row 2: First Name, Last Name, User Group */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4">
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">First Name <span className="text-red-500">*</span></Label>
                 <Input
                   placeholder="First Name *"
-                  className={`h-9 md:h-10 w-full border border-gray-200 rounded-md px-3 ${errors.firstName ? "border-red-500" : ""}`}
+                  className={`h-9 md:h-9 w-full border border-gray-200 rounded-md px-3 ${errors.firstName ? "border-red-500" : ""}`}
                   value={formData.firstName}
                   onChange={(e) => { setFieldError("firstName"); setFormData({ ...formData, firstName: e.target.value }) }}
                   aria-invalid={!!errors.firstName}
@@ -267,7 +267,7 @@ export function UserRegistration() {
                 <Label className="text-sm font-medium text-gray-700">Last Name <span className="text-red-500">*</span></Label>
                 <Input
                   placeholder="Last Name *"
-                  className={`h-9 md:h-10 w-full border border-gray-200 rounded-md px-3 ${errors.lastName ? "border-red-500" : ""}`}
+                  className={`h-9 md:h-9 w-full border border-gray-200 rounded-md px-3 ${errors.lastName ? "border-red-500" : ""}`}
                   value={formData.lastName}
                   onChange={(e) => { setFieldError("lastName"); setFormData({ ...formData, lastName: e.target.value }) }}
                   aria-invalid={!!errors.lastName}
@@ -285,13 +285,13 @@ export function UserRegistration() {
             </div>
 
             {/* Row 3: Email, Confirm Email, Phone (country code + number) */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4">
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">Email <span className="text-red-500">*</span></Label>
                 <Input
                   type="email"
                   placeholder="Email *"
-                  className={`h-9 md:h-10 w-full border border-gray-200 rounded-md px-3 ${errors.email ? "border-red-500" : ""}`}
+                  className={`h-9 md:h-9 w-full border border-gray-200 rounded-md px-3 ${errors.email ? "border-red-500" : ""}`}
                   value={formData.email}
                   onChange={(e) => {
                     const val = e.target.value
@@ -322,7 +322,7 @@ export function UserRegistration() {
                 <Input
                   type="email"
                   placeholder="Confirm Email *"
-                  className={`h-9 md:h-10 w-full border border-gray-200 rounded-md px-3 ${errors.confirmEmail ? "border-red-500" : ""}`}
+                  className={`h-9 md:h-9 w-full border border-gray-200 rounded-md px-3 ${errors.confirmEmail ? "border-red-500" : ""}`}
                   value={formData.confirmEmail}
                   onChange={(e) => {
                     const val = e.target.value
@@ -346,10 +346,10 @@ export function UserRegistration() {
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">Phone Number</Label>
                 <div className="flex gap-2 items-center">
-                  <div className="w-20 flex-shrink-0">
+                  <div className="w-16 flex-shrink-0">
                     <Select value={formData.countryCode} onValueChange={(value) => setFormData({ ...formData, countryCode: value })}>
-                      <SelectTrigger className="h-9 md:h-10 w-full border border-gray-200 rounded-md bg-white px-3 text-sm flex items-center">
-                        <span className="truncate">{formData.countryCode ? String(formData.countryCode).split(":")[1] ?? formData.countryCode : ""}</span>
+                      <SelectTrigger className="h-9 md:h-9 w-full border border-gray-200 rounded-md bg-white px-2 text-sm flex items-center justify-center">
+                        <span className="truncate text-center">{formData.countryCode ? String(formData.countryCode).split(":")[1] ?? formData.countryCode : ""}</span>
                       </SelectTrigger>
                       <SelectContent>
                         {countryCodes.map((c, i) => (
