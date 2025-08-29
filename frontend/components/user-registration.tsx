@@ -95,6 +95,9 @@ export function UserRegistration() {
     { code: "+91", label: "IN", value: "IN:+91" },
   ]
 
+  // display the country-code label (e.g. "+1" or "UK +44")
+  const countryCodeLabel = formData.countryCode ? String(formData.countryCode).split(":")[1] ?? formData.countryCode : ""
+
   const setFieldError = (field: string, msg?: string) => {
     setErrors((prev) => {
       const next = { ...prev }
@@ -178,7 +181,7 @@ export function UserRegistration() {
   if (showAddUser) return <UserManagement />
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between mb-6">
         <div>
           <nav className="flex items-center gap-2 text-sm md:text-base text-gray-600 mb-2">
@@ -346,12 +349,13 @@ export function UserRegistration() {
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">Phone Number</Label>
                 <div className="flex gap-2 items-center">
-                  <div className="w-16 flex-shrink-0">
+                  {/* fixed width that comfortably fits single and double digit codes */}
+                  <div className="w-19 flex-shrink-0 transition-all duration-150">
                     <Select value={formData.countryCode} onValueChange={(value) => setFormData({ ...formData, countryCode: value })}>
-                      <SelectTrigger className="h-9 md:h-9 w-full border border-gray-200 rounded-md bg-white px-2 text-sm flex items-center justify-center">
-                        <span className="truncate text-center">{formData.countryCode ? String(formData.countryCode).split(":")[1] ?? formData.countryCode : ""}</span>
+                      <SelectTrigger className="h-9 md:h-9 w-full border border-gray-200 rounded-md bg-white px-3 text-sm flex items-center justify-center">
+                        <span className="truncate text-center">{countryCodeLabel}</span>
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="min-w-[6rem]">
                         {countryCodes.map((c, i) => (
                           <SelectItem key={`${c.value}-${i}`} value={c.value}>
                             {c.label} {c.code}
