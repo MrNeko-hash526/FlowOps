@@ -1,18 +1,8 @@
 const fs = require('fs')
 const path = require('path')
+const { getPrisma } = require('../config/db')
 
 const SUBMISSIONS_FILE = path.join(__dirname, '..', 'data', 'submissions.json')
-
-// Prisma client (optional)
-let prisma = null
-if (process.env.DATABASE_URL) {
-  try {
-    const { PrismaClient } = require('@prisma/client')
-    prisma = new PrismaClient()
-  } catch (err) {
-    console.warn('Prisma client not installed or generated; falling back to file store')
-  }
-}
 
 function readSubmissions() {
   try {
@@ -102,10 +92,13 @@ exports.submit = async (req, res) => {
       return res.status(400).json({ success: false, errors })
     }
 
-    // Prisma path
+    // Get Prisma client from centralized db config
+    const prisma = getPrisma()
+
+    // Prisma path - use UserRegisteration model
     if (prisma) {
       try {
-        const created = await prisma.formSubmission.create({
+        const created = await prisma.userRegisteration.create({
           data: {
             type: mapped.type,
             existingContacts: mapped.existingContacts,
@@ -118,13 +111,15 @@ exports.submit = async (req, res) => {
             userGroup: mapped.userGroup
           }
         })
+        console.log(`Created user registration for: ${mapped.email}`)
         return res.json({ success: true, submission: created })
       } catch (err) {
-        console.error('Prisma error creating form submission', err)
+        console.error('Prisma error creating user registration:', err)
         return res.status(500).json({ error: 'Server error' })
       }
     }
 
+    // Fallback: File storage
     const submissions = readSubmissions()
     const submission = {
       id: Date.now().toString(),
