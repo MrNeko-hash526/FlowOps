@@ -5,7 +5,9 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ConvergenceLogo } from "@/components/convergence-logo"
-const api_url = process.env.API_URL;
+
+
+const api_url = process.env.NEXT_PUBLIC_API_URL;
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({

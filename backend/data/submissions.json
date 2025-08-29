@@ -1,1 +1,17 @@
-
+[
+  {
+    "id": "1756450726086",
+    "createdAt": "2025-08-29T06:58:46.086Z",
+    "fields": {
+      "type": "individual",
+      "existingContacts": "contact2",
+      "firstName": "meow",
+      "lastName": "narch",
+      "email": "aksdash@gmail.com",
+      "confirmEmail": "aksdash@gmail.com",
+      "phoneNo": "+11234567890",
+      "role": "manager",
+      "userGroup": "None Selected"
+    }
+  }
+]
