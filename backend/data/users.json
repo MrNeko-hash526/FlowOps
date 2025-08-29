@@ -1,0 +1,12 @@
+[
+  {
+    "id": "1756465683778",
+    "firstName": "meow",
+    "lastName": "narch",
+    "email": "meow@gmail.com",
+    "password": "$2a$10$aDsIqfEkN59uYf50KYr9y./ecAWBoS8wUzsQoSgXNsUXLCqq6d.5m",
+    "ipAddress": "127.0.0.1",
+    "macAddress": null,
+    "createdAt": "2025-08-29T11:08:03.778Z"
+  }
+]

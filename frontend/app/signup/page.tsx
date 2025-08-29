@@ -3,42 +3,11 @@
 import { useState } from "react"
 import Link from "next/link"
 import { ConvergenceLogo } from "@/components/convergence-logo"
-import * as yup from "yup"
 
 const api_url = process.env.NEXT_PUBLIC_API_URL;
 
-// Yup validation schema
-const signupSchema = yup.object().shape({
-  firstName: yup
-    .string()
-    .required("First name is required")
-    .min(2, "First name must be at least 2 characters")
-    .matches(/^[A-Za-z\s]+$/, "First name can only contain letters"),
-  lastName: yup
-    .string()
-    .required("Last name is required")
-    .min(2, "Last name must be at least 2 characters")
-    .matches(/^[A-Za-z\s]+$/, "Last name can only contain letters"),
-  email: yup
-    .string()
-    .required("Email is required")
-    .email("Please enter a valid email address"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(8, "Password must be at least 8 characters")
-    .matches(/(?=.*[a-z])/, "Password must contain at least one lowercase letter")
-    .matches(/(?=.*[A-Z])/, "Password must contain at least one uppercase letter")
-    .matches(/(?=.*\d)/, "Password must contain at least one number"),
-  confirmPassword: yup
-    .string()
-    .required("Please confirm your password")
-    .oneOf([yup.ref('password')], "Passwords must match")
-})
-
 export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -47,24 +16,18 @@ export default function SignUpPage() {
     confirmPassword: ""
   })
 
-  const validateField = async (field: string, value: string) => {
-    try {
-      await signupSchema.validateAt(field, { ...formData, [field]: value })
-      setErrors(prev => ({ ...prev, [field]: "" }))
-    } catch (err: any) {
-      setErrors(prev => ({ ...prev, [field]: err.message }))
-    }
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    setErrors({})
+
+    // Basic validation
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords don't match")
+      setIsLoading(false)
+      return
+    }
 
     try {
-      // Validate entire form
-      await signupSchema.validate(formData, { abortEarly: false })
-      
       console.log("API URL:", api_url);
 
       const response = await fetch(`${api_url}/api/auth/signup`, {
@@ -77,7 +40,7 @@ export default function SignUpPage() {
           password: formData.password
         }),
       });
-
+      console.log("➡️ API Request:");
       const data = await response.json()
       if (!response.ok) {
         alert(data.error || 'Signup failed')
@@ -88,34 +51,20 @@ export default function SignUpPage() {
       // Signup successful, redirect to login
       window.location.href = "/login"
     } catch (error: any) {
-      if (error.inner) {
-        // Yup validation errors
-        const validationErrors: Record<string, string> = {}
-        error.inner.forEach((err: any) => {
-          validationErrors[err.path] = err.message
-        })
-        setErrors(validationErrors)
-      } else {
-        alert('Signup error: ' + error.message)
-      }
+      alert('Signup error: ' + error.message)
       setIsLoading(false)
     }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [e.target.name]: e.target.value
     }))
-    
-    // Validate field on change (debounced)
-    validateField(name, value)
   }
 
   const clearField = (fieldName: string) => {
     setFormData(prev => ({ ...prev, [fieldName]: "" }))
-    setErrors(prev => ({ ...prev, [fieldName]: "" }))
   }
 
   return (
@@ -152,9 +101,7 @@ export default function SignUpPage() {
                   onChange={handleInputChange}
                   required
                   disabled={isLoading}
-                  className={`w-full pl-10 pr-8 py-2.5 bg-blue-50 border-2 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:bg-white transition-all duration-200 text-sm ${
-                    errors.firstName ? "border-red-500 focus:border-red-500" : "border-blue-200 focus:border-blue-500"
-                  }`}
+                  className="w-full pl-10 pr-8 py-2.5 bg-blue-50 border-2 border-blue-200 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all duration-200 text-sm"
                 />
                 {formData.firstName && (
                   <div className="absolute inset-y-0 right-0 pr-2 flex items-center">
@@ -170,9 +117,6 @@ export default function SignUpPage() {
                     </svg>
                   </div>
                 )}
-                {errors.firstName && (
-                  <p className="text-red-500 text-xs mt-1 px-1">{errors.firstName}</p>
-                )}
               </div>
 
               <div className="relative">
@@ -184,9 +128,7 @@ export default function SignUpPage() {
                   onChange={handleInputChange}
                   required
                   disabled={isLoading}
-                  className={`w-full pl-3 pr-8 py-2.5 bg-blue-50 border-2 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:bg-white transition-all duration-200 text-sm ${
-                    errors.lastName ? "border-red-500 focus:border-red-500" : "border-blue-200 focus:border-blue-500"
-                  }`}
+                  className="w-full pl-3 pr-8 py-2.5 bg-blue-50 border-2 border-blue-200 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all duration-200 text-sm"
                 />
                 {formData.lastName && (
                   <div className="absolute inset-y-0 right-0 pr-2 flex items-center">
@@ -201,9 +143,6 @@ export default function SignUpPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </div>
-                )}
-                {errors.lastName && (
-                  <p className="text-red-500 text-xs mt-1 px-1">{errors.lastName}</p>
                 )}
               </div>
             </div>
@@ -229,9 +168,7 @@ export default function SignUpPage() {
                 onChange={handleInputChange}
                 required
                 disabled={isLoading}
-                className={`w-full pl-10 pr-10 py-2.5 bg-blue-50 border-2 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:bg-white transition-all duration-200 text-sm ${
-                  errors.email ? "border-red-500 focus:border-red-500" : "border-blue-200 focus:border-blue-500"
-                }`}
+                className="w-full pl-10 pr-10 py-2.5 bg-blue-50 border-2 border-blue-200 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all duration-200 text-sm"
               />
               {formData.email && (
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -246,9 +183,6 @@ export default function SignUpPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </div>
-              )}
-              {errors.email && (
-                <p className="text-red-500 text-xs mt-1 px-1">{errors.email}</p>
               )}
             </div>
 
@@ -273,9 +207,7 @@ export default function SignUpPage() {
                 onChange={handleInputChange}
                 required
                 disabled={isLoading}
-                className={`w-full pl-10 pr-10 py-2.5 bg-blue-50 border-2 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:bg-white transition-all duration-200 text-sm ${
-                  errors.password ? "border-red-500 focus:border-red-500" : "border-blue-200 focus:border-blue-500"
-                }`}
+                className="w-full pl-10 pr-10 py-2.5 bg-blue-50 border-2 border-blue-200 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all duration-200 text-sm"
               />
               {formData.password && (
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -290,9 +222,6 @@ export default function SignUpPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </div>
-              )}
-              {errors.password && (
-                <p className="text-red-500 text-xs mt-1 px-1">{errors.password}</p>
               )}
             </div>
 
@@ -317,9 +246,7 @@ export default function SignUpPage() {
                 onChange={handleInputChange}
                 required
                 disabled={isLoading}
-                className={`w-full pl-10 pr-10 py-2.5 bg-blue-50 border-2 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:bg-white transition-all duration-200 text-sm ${
-                  errors.confirmPassword ? "border-red-500 focus:border-red-500" : "border-blue-200 focus:border-blue-500"
-                }`}
+                className="w-full pl-10 pr-10 py-2.5 bg-blue-50 border-2 border-blue-200 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all duration-200 text-sm"
               />
               {formData.confirmPassword && (
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -334,9 +261,6 @@ export default function SignUpPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </div>
-              )}
-              {errors.confirmPassword && (
-                <p className="text-red-500 text-xs mt-1 px-1">{errors.confirmPassword}</p>
               )}
             </div>
 
