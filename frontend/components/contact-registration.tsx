@@ -27,6 +27,7 @@ export function ContactRegistration() {
     pronouns: "",
     emails: [""],
     officeNumber: "",
+    countryCode: "US:+1",
     cellNumber: "",
     addressLines: [""],
     addressLine2: "",
@@ -134,6 +135,13 @@ export function ContactRegistration() {
     return Object.keys(errs).length === 0
   }
 
+  const countryCodes = [
+    { code: "+1", label: "US", value: "US:+1" },
+    { code: "+1", label: "CA", value: "CA:+1" },
+    { code: "+44", label: "UK", value: "UK:+44" },
+    { code: "+91", label: "IN", value: "IN:+91" },
+  ]
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
@@ -154,6 +162,7 @@ export function ContactRegistration() {
       // include full emails array
       emails: formData.emails || [],
       officeNumber: formData.officeNumber,
+      countryCode: formData.countryCode,
       cellNumber: formData.cellNumber,
       // primary (first) address line
       addressLine1: (formData.addressLines && formData.addressLines[0]) || null,
@@ -206,6 +215,7 @@ export function ContactRegistration() {
           pronouns: "",
           emails: [""],
           officeNumber: "",
+          countryCode: "US:+1",
           cellNumber: "",
           addressLines: [""],
           addressLine2: "",
@@ -500,8 +510,8 @@ export function ContactRegistration() {
                 {errors.officeNumber && <p className="text-sm text-red-600">{errors.officeNumber}</p>}
               </div>
 
-
-              <div className="space-y-2">
+              {/* Cell Number */}
+              {/* <div className="space-y-2">
                 <Label htmlFor="cell" className="text-sm font-medium text-gray-700">
                   Cell Number: <span className="text-red-500">*</span>
                 </Label>
@@ -550,7 +560,101 @@ export function ContactRegistration() {
                   />
                 </div>
                 {errors.cellNumber && <p className="text-sm text-red-600">{errors.cellNumber}</p>}
+              </div> */}
+
+              <div className="grid grid-cols-1">
+                <div className="space-y-2">
+                  <Label htmlFor="cellNumber" className="text-sm font-medium text-gray-700">
+                    Cell Number <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="flex gap-2">
+                    {/* Country Code Selector */}
+                    <div className="w-20">
+                      <Select
+                        value={formData.countryCode}
+                        onValueChange={(value) => setFormData({ ...formData, countryCode: value })}
+                      >
+                        <SelectTrigger className="h-9 md:h-10 w-full border border-gray-200 rounded-md bg-white px-3 text-sm flex items-center">
+                          <span className="truncate">
+                            {formData.countryCode
+                              ? String(formData.countryCode).split(":")[1] ?? formData.countryCode
+                              : ""}
+                          </span>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {countryCodes.map((c, i) => (
+                            <SelectItem key={`${c.value}-${i}`} value={c.value}>
+                              {c.label} {c.code}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Phone Input */}
+                    <div className="flex-1">
+                      <Input
+                        id="cellNumber"
+                        placeholder="Enter 10 digit number"
+                        className={`h-9 md:h-10 w-full border border-gray-200 rounded-md px-3 ${errors.cellNumber ? "border-red-500" : ""
+                          }`}
+                        value={formData.cellNumber}
+                        inputMode="numeric"
+                        maxLength={10}
+                        onChange={(e) => {
+                          let val = e.target.value
+
+                          // Allow "+" only at start
+                          if (val.startsWith("+")) {
+                            val = "+" + val.slice(1).replace(/\D/g, "")
+                          } else {
+                            val = val.replace(/\D/g, "")
+                          }
+
+                          if (val.length <= 13) {
+                            setFormData({ ...formData, cellNumber: val })
+                          }
+                        }}
+                        onBlur={() => {
+                          const number = (formData.cellNumber || "").trim()
+
+                          if (!number) {
+                            setErrors((prev) => ({
+                              ...prev,
+                              cellNumber: "Cell number is required",
+                            }))
+                          } else if (!/^\+?\d+$/.test(number)) {
+                            setErrors((prev) => ({
+                              ...prev,
+                              cellNumber: "Must contain only digits and may start with +",
+                            }))
+                          } else if (number.length < 12 || number.length > 13) {
+                            setErrors((prev) => ({
+                              ...prev,
+                              cellNumber: "Phone number must be 12–13 characters long",
+                            }))
+                          } else {
+                            setErrors((prev) => {
+                              const p = { ...prev }
+                              delete p.cellNumber
+                              return p
+                            })
+                          }
+                        }}
+                        aria-invalid={errors.cellNumber ? true : false}
+                        aria-describedby={errors.cellNumber ? "cell-error" : undefined}
+                      />
+                      {errors.cellNumber ? (
+                        <p id="cell-error" role="alert" className="text-red-500 text-xs mt-1">
+                          {errors.cellNumber}
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
               </div>
+
+
 
 
               <div className="space-y-2">
