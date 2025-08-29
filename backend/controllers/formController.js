@@ -20,124 +20,106 @@ function writeSubmissions(submissions) {
 
 exports.submit = async (req, res) => {
   try {
+    console.log('🔍 Starting user registration submission...')
+    console.log('🔍 Request body:', JSON.stringify(req.body, null, 2))
+
     const fields = req.body || {}
 
-    // Basic validation: ensure at least one field is present
+    // Basic validation
     if (!fields || Object.keys(fields).length === 0) {
       return res.status(400).json({ error: 'Form data required' })
     }
 
-    // Remove any unexpected 'files' property coming from client
-    if (fields && Object.prototype.hasOwnProperty.call(fields, 'files')) {
-      delete fields.files
+    if (!fields.email) {
+      return res.status(400).json({ error: 'Email is required' })
     }
 
-    // Map incoming fields to schema fields
-    const mapped = {
-      type: fields.type || null,
-      existingContacts: fields.existingContacts || null,
-      firstName: fields.firstName || null,
-      lastName: fields.lastName || null,
-      email: fields.email || (fields.Email || null),
-      confirmEmail: fields.confirmEmail || null,
-      phoneNo: fields.phoneNo || null,
-      role: fields.role || null,
-      userGroup: fields.userGroup || 'None Selected'
-    }
-
-    // Ensure mapped object does not accidentally include files
-    if (Object.prototype.hasOwnProperty.call(mapped, 'files')) {
-      delete mapped.files
-    }
-
-    // Server-side validation: mirror client-side rules
-    const errors = {}
-    const requiredFields = ["type", "firstName", "lastName", "email", "confirmEmail", "role"]
-    for (const f of requiredFields) {
-      const v = mapped[f]
-      if (!v || String(v) === "") {
-        errors[f] = `${f} is required`
-      } else if (String(v) !== String(v).trim()) {
-        errors[f] = `${f} must not have leading or trailing spaces`
-      }
-    }
-
-    // simple email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (mapped.email && !emailRegex.test(String(mapped.email))) {
-      errors.email = 'Please enter a valid email address'
-    }
-    if (mapped.email && mapped.confirmEmail && String(mapped.email) !== String(mapped.confirmEmail)) {
-      errors.confirmEmail = 'Email and Confirm Email do not match'
-    }
-
-    // Names must not contain digits
-    const nameHasDigits = /\d/
-    if (mapped.firstName && nameHasDigits.test(String(mapped.firstName))) {
-      errors.firstName = 'Names must not contain numbers'
-    }
-    if (mapped.lastName && nameHasDigits.test(String(mapped.lastName))) {
-      errors.lastName = 'Names must not contain numbers'
-    }
-
-    // phone: allow E.164 or numeric; require at least 10 digits
-    if (mapped.phoneNo) {
-      const digits = String(mapped.phoneNo).replace(/\D/g, '')
-      if (digits.length < 10) {
-        errors.phoneNo = 'Phone number must have at least 10 digits'
-      }
-    }
-
-    if (Object.keys(errors).length > 0) {
-      return res.status(400).json({ success: false, errors })
-    }
-
-    // Get Prisma client from centralized db config
+    // Get Prisma client
     const prisma = getPrisma()
+    console.log('🔍 Prisma client available:', !!prisma)
 
-    // Prisma path - use UserRegisteration model
+    // Database path - use userregisteration table
     if (prisma) {
       try {
-        const created = await prisma.userRegisteration.create({
-          data: {
-            type: mapped.type,
-            existingContacts: mapped.existingContacts,
-            firstName: mapped.firstName,
-            lastName: mapped.lastName,
-            email: mapped.email || '',
-            confirmEmail: mapped.confirmEmail,
-            phoneNo: mapped.phoneNo,
-            role: mapped.role,
-            userGroup: mapped.userGroup
-          }
+        console.log('🔍 Testing database connection...')
+        await prisma.$connect()
+        console.log('✅ Database connection successful')
+
+        // Generate ID
+        const userId = Date.now().toString()
+
+        // Map to userregisteration schema
+        const userData = {
+          id: userId,
+          type: fields.type || null,
+          existingContacts: fields.existingContacts || null,
+          firstName: fields.firstName || null,
+          lastName: fields.lastName || null,
+          email: fields.email,
+          confirmEmail: fields.confirmEmail || null,
+          phoneNo: fields.phoneNo || null,
+          role: fields.role || null,
+          userGroup: fields.userGroup || 'None Selected'
+        }
+
+        console.log('🔍 Creating user registration in database...')
+        console.log('🔍 User data:', JSON.stringify(userData, null, 2))
+
+        const user = await prisma.userregisteration.create({
+          data: userData
         })
-        console.log(`Created user registration for: ${mapped.email}`)
-        return res.json({ success: true, submission: created })
+
+        console.log(`✅ Successfully created user registration in database: ${user.id}`)
+        
+        return res.status(200).json({
+          message: 'User registered successfully in database',
+          data: user
+        })
       } catch (err) {
-        console.error('Prisma error creating user registration:', err)
-        return res.status(500).json({ error: 'Server error' })
+        console.error('❌ Database error:', err.message)
+        console.error('❌ Full error:', err)
+        console.log('📁 Falling back to file storage...')
+        // Fall through to file storage
       }
+    } else {
+      console.log('❌ Prisma client not available')
     }
 
-    // Fallback: File storage
+    // Fallback to file storage
+    console.log('📁 Using file storage for user registration...')
+    
     const submissions = readSubmissions()
     const submission = {
       id: Date.now().toString(),
       createdAt: new Date().toISOString(),
-      fields: mapped
-    }
-
-    // Extra safeguard: ensure no `files` property exists on the submission
-    if (Object.prototype.hasOwnProperty.call(submission, 'files')) {
-      delete submission.files
+      fields: {
+        type: fields.type || '',
+        existingContacts: fields.existingContacts || '',
+        firstName: fields.firstName || '',
+        lastName: fields.lastName || '',
+        email: fields.email || '',
+        confirmEmail: fields.confirmEmail || '',
+        phoneNo: fields.phoneNo || '',
+        role: fields.role || '',
+        userGroup: fields.userGroup || 'None Selected'
+      }
     }
 
     submissions.push(submission)
     writeSubmissions(submissions)
 
-    res.json({ success: true, submission })
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: 'Failed to submit form' })
+    console.log('📁 User registration saved to file storage')
+    res.status(200).json({ 
+      message: 'User registered successfully in file storage', 
+      data: submission 
+    })
+
+  } catch (error) {
+    console.error('💥 User registration error:', error.message)
+    console.error('💥 Error stack:', error.stack)
+    res.status(500).json({ 
+      message: 'Error registering user', 
+      error: error.message 
+    })
   }
 }
