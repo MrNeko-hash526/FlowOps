@@ -7,29 +7,47 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String  @id @default(cuid())
-  firstName String?
-  lastName  String?
-  email     String  @unique
-  password  String
-  createdAt DateTime @default(now())
+model contact {
+  id               String    @id
+  type             String?
+  existingContacts String?
+  firstName        String?
+  lastName         String?
+  suffix           String?
+  title            String?
+  status           String?   @default("Active")
+  goesBy           String?
+  pronouns         String?
+  emailAddress     String?
+  emails           Json?
+  officeNumber     String?
+  countryCode      String?
+  cellNumber       String?
+  addressLines     Json?
+  addressLine2     String?
+  city             String?
+  state            String?
+  zip              String?
+  dateOfBirth      DateTime?
+  workAnniversary  DateTime?
+  maritalStatus    String?
+  spouseName       String?
+  childrensNames   Json?
+  college          String?
+  degree           String?
+  priorEmployer    String?
+  priorEmployers   Json?
+  endDate          DateTime?
+  notes            String?
+  sportsTeam       String?
+  favorites        String?
+  group            String?
+  report           String?
+  createdAt        DateTime  @default(now())
 }
 
-
-model User {
-  id         String   @id @default(cuid())
-  firstName  String
-  lastName   String
-  email      String   @unique
-  password   String
-  ipAddress  String?
-  macAddress String?
-  createdAt  DateTime @default(now())
-}
-
-model FormSubmission {
-  id               String           @id @default(cuid())
+model userregisteration {
+  id               String   @id
   type             String?
   existingContacts String?
   firstName        String?
@@ -38,19 +56,17 @@ model FormSubmission {
   confirmEmail     String?
   phoneNo          String?
   role             String?
-  userGroup        String           @default("None Selected")
-  createdAt        DateTime         @default(now())
-  files            SubmissionFile[]
+  userGroup        String   @default("None Selected")
+  createdAt        DateTime @default(now())
 }
 
-model SubmissionFile {
-  id           String   @id @default(cuid())
-  originalName String
-  filename     String
-  path         String
-  size         Int
-  createdAt    DateTime @default(now())
-
-  submission   FormSubmission @relation(fields: [submissionId], references: [id])
-  submissionId String
+model usersignup {
+  id         String   @id
+  firstName  String?
+  lastName   String?
+  email      String   @unique(map: "UserSignup_email_key")
+  password   String
+  ipAddress  String?
+  macAddress String?
+  createdAt  DateTime @default(now())
 }
