@@ -4,6 +4,8 @@ import { useState } from "react"
 import Link from "next/link"
 import { ConvergenceLogo } from "@/components/convergence-logo"
 
+const api_url = process.env.NEXT_PUBLIC_API_URL;
+
 export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -26,7 +28,9 @@ export default function SignUpPage() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/signup', {
+      console.log("API URL:", api_url);
+
+      const response = await fetch(`${api_url}/api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -34,9 +38,9 @@ export default function SignUpPage() {
           lastName: formData.lastName,
           email: formData.email,
           password: formData.password
-        })
-      })
-
+        }),
+      });
+      console.log("➡️ API Request:");
       const data = await response.json()
       if (!response.ok) {
         alert(data.error || 'Signup failed')

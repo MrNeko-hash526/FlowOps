@@ -12,6 +12,7 @@ import { CalendarDays } from "lucide-react"
 import { ContactManagement } from "./contact-management"
 import { ArrowLeft } from "lucide-react";
 
+const api_url = process.env.NEXT_PUBLIC_API_URL;
 
 export function ContactRegistration() {
   const [formData, setFormData] = useState({
@@ -26,6 +27,7 @@ export function ContactRegistration() {
     pronouns: "",
     emails: [""],
     officeNumber: "",
+    countryCode: "US:+1",
     cellNumber: "",
     addressLines: [""],
     addressLine2: "",
@@ -121,9 +123,10 @@ export function ContactRegistration() {
       errs.cellNumber = "Cell number is required";
     } else if (!/^\+?\d{1,}$/.test(number)) {
       errs.cellNumber = "Must contain only digits and may start with +";
-    } else if (number.length < 12 || number.length > 13) {
-      errs.cellNumber = "Phone number must be 12–13 characters long";
     }
+    // else if (number.length < 12 || number.length > 13) {
+    //   errs.cellNumber = "Phone number must be 12–13 characters long";
+    // }
 
 
     // Zip numeric check
@@ -132,6 +135,13 @@ export function ContactRegistration() {
     setErrors(errs)
     return Object.keys(errs).length === 0
   }
+
+  const countryCodes = [
+    { code: "+1", label: "US", value: "US:+1" },
+    { code: "+1", label: "CA", value: "CA:+1" },
+    { code: "+44", label: "UK", value: "UK:+44" },
+    { code: "+91", label: "IN", value: "IN:+91" },
+  ]
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -153,6 +163,7 @@ export function ContactRegistration() {
       // include full emails array
       emails: formData.emails || [],
       officeNumber: formData.officeNumber,
+      countryCode: formData.countryCode,
       cellNumber: formData.cellNumber,
       // primary (first) address line
       addressLine1: (formData.addressLines && formData.addressLines[0]) || null,
@@ -181,7 +192,7 @@ export function ContactRegistration() {
     }
 
     try {
-      const res = await fetch('http://localhost:5000/api/contact/register', {
+      const res = await fetch(`${api_url}/api/contact/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -205,6 +216,7 @@ export function ContactRegistration() {
           pronouns: "",
           emails: [""],
           officeNumber: "",
+          countryCode: "US:+1",
           cellNumber: "",
           addressLines: [""],
           addressLine2: "",
@@ -319,6 +331,7 @@ export function ContactRegistration() {
                   className="h-10 w-full"
                   value={formData.firstName}
                   inputMode="text"
+                  maxLength={25}
                   pattern="[A-Za-z]*"
                   onChange={(e) => {
                     const value = e.target.value
@@ -348,6 +361,7 @@ export function ContactRegistration() {
                   className="h-10 w-full"
                   value={formData.lastName}
                   inputMode="text"
+                  maxLength={15}
                   pattern="[A-Za-z]*"
                   onChange={(e) => {
                     const value = e.target.value
@@ -375,6 +389,7 @@ export function ContactRegistration() {
                   id="suffix"
                   placeholder="Suffix"
                   className="h-10 w-full"
+                  maxLength={8}
                   value={formData.suffix}
                   onChange={(e) => setFormData({ ...formData, suffix: e.target.value })}
                 />
@@ -387,6 +402,7 @@ export function ContactRegistration() {
                   id="title"
                   placeholder="Title"
                   className="h-10 w-full"
+                  maxLength={15}
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 />
@@ -414,6 +430,7 @@ export function ContactRegistration() {
                   id="goesBy"
                   placeholder="Goes By"
                   className="h-10"
+                  maxLength={8}
                   value={formData.goesBy}
                   onChange={(e) => setFormData({ ...formData, goesBy: e.target.value })}
                 />
@@ -437,6 +454,7 @@ export function ContactRegistration() {
                     id="email"
                     type="text"
                     placeholder="Email Address"
+                    maxLength={50}
                     className="h-10 flex-1 w-full"
                     value={(formData.emails && formData.emails[0]) || ''}
                     // required
@@ -484,6 +502,8 @@ export function ContactRegistration() {
                   placeholder="Office Number"
                   className="h-10"
                   value={formData.officeNumber}
+                  minLength={3}
+                  maxLength={15}
                   inputMode="numeric"
                   onChange={(e) => {
                     const digits = e.target.value.replace(/\D/g, '')
@@ -499,8 +519,8 @@ export function ContactRegistration() {
                 {errors.officeNumber && <p className="text-sm text-red-600">{errors.officeNumber}</p>}
               </div>
 
-
-              <div className="space-y-2">
+              {/* Cell Number */}
+              {/* <div className="space-y-2">
                 <Label htmlFor="cell" className="text-sm font-medium text-gray-700">
                   Cell Number: <span className="text-red-500">*</span>
                 </Label>
@@ -549,7 +569,105 @@ export function ContactRegistration() {
                   />
                 </div>
                 {errors.cellNumber && <p className="text-sm text-red-600">{errors.cellNumber}</p>}
+              </div> */}
+
+              <div className="grid grid-cols-1">
+                <div className="space-y-2">
+                  <Label htmlFor="cellNumber" className="text-sm font-medium text-gray-700">
+                    Cell Number <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="flex gap-2">
+                    {/* Country Code Selector */}
+                    <div className="w-20">
+                      <Select
+                        value={formData.countryCode}
+                        onValueChange={(value) => setFormData({ ...formData, countryCode: value })}
+                      >
+                        <SelectTrigger className="h-9 md:h-10 w-full border border-gray-200 rounded-md bg-white px-3 text-sm flex items-center">
+                          <span className="truncate">
+                            {formData.countryCode
+                              ? String(formData.countryCode).split(":")[1] ?? formData.countryCode
+                              : ""}
+                          </span>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {countryCodes.map((c, i) => (
+                            <SelectItem key={`${c.value}-${i}`} value={c.value}>
+                              {c.label} {c.code}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Phone Input */}
+                    <div className="flex-1">
+                      <Input
+                        id="cellNumber"
+                        placeholder="Enter 10 digit number"
+                        className={`h-9 md:h-10 w-full border border-gray-200 rounded-md px-3 ${errors.cellNumber ? "border-red-500" : ""
+                          }`}
+                        value={formData.cellNumber}
+                        inputMode="numeric"
+                        minLength={6}
+                        maxLength={10}
+                        onChange={(e) => {
+                          let val = e.target.value
+
+                          // Allow "+" only at start
+                          if (val.startsWith("+")) {
+                            val = "+" + val.slice(1).replace(/\D/g, "")
+                          } else {
+                            val = val.replace(/\D/g, "")
+                          }
+
+                          if (val.length <= 13) {
+                            setFormData({ ...formData, cellNumber: val })
+                          }
+                        }}
+                        onBlur={() => {
+                          const number = (formData.cellNumber || "").trim()
+
+                          if (!number) {
+                            setErrors((prev) => ({
+                              ...prev,
+                              cellNumber: "Cell number is required",
+                            }))
+                          }
+                          else if (!/^\+?\d+$/.test(number)) {
+                            setErrors((prev) => ({
+                              ...prev,
+                              cellNumber: "Must contain only digits and may start with +",
+                            }))
+                          }
+                          // else if (number.length < 10 || number.length > 12) {
+                          //   setErrors((prev) => ({
+                          //     ...prev,
+                          //     cellNumber: "Phone number must be 10 characters long",
+                          //   }))
+                          // }
+                          else {
+                            setErrors((prev) => {
+                              const p = { ...prev }
+                              delete p.cellNumber
+                              return p
+                            })
+                          }
+                        }}
+                        aria-invalid={errors.cellNumber ? true : false}
+                        aria-describedby={errors.cellNumber ? "cell-error" : undefined}
+                      />
+                      {errors.cellNumber ? (
+                        <p id="cell-error" role="alert" className="text-red-500 text-xs mt-1">
+                          {errors.cellNumber}
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
               </div>
+
+
 
 
               <div className="space-y-2">
@@ -560,6 +678,8 @@ export function ContactRegistration() {
                   id="group"
                   placeholder="Group"
                   className="h-10"
+                  minLength={2}
+                  maxLength={10}
                   value={formData.group}
                   onChange={(e) => setFormData({ ...formData, group: e.target.value })}
                 />
@@ -578,6 +698,7 @@ export function ContactRegistration() {
                     id="address1"
                     placeholder="Address 1"
                     className="h-10 flex-1"
+                    minLength={10}
                     value={(formData.addressLines && formData.addressLines[0]) || ''}
                     onChange={(e) => {
                       setFormData(prev => ({ ...prev, addressLines: [e.target.value, ...(prev.addressLines?.slice(1) || [])] }))
@@ -670,6 +791,8 @@ export function ContactRegistration() {
                   placeholder="Zip"
                   className="h-10 w-full"
                   value={formData.zip}
+                  minLength={4}
+                  maxLength={8}
                   inputMode="numeric"
                   onChange={(e) => {
                     const digits = e.target.value.replace(/\D/g, '')
@@ -709,6 +832,7 @@ export function ContactRegistration() {
                   <Input
                     id="dob"
                     type="date"
+                    formEncType=""
                     className="h-10"
                     value={formData.dateOfBirth}
                     onChange={(e) => {
@@ -718,6 +842,7 @@ export function ContactRegistration() {
                     onBlur={() => {
                       if (!formData.dateOfBirth || String(formData.dateOfBirth).trim() === '') setErrors(prev => ({ ...prev, dateOfBirth: 'Date of birth is required' }))
                     }}
+                    onKeyDown={(e) => e.preventDefault()}
                   />
                   {/* <CalendarDays className="absolute right-3 top-3 h-4 w-4 text-gray-400" /> */}
                 </div>
@@ -740,6 +865,7 @@ export function ContactRegistration() {
                     onBlur={() => {
                       if (!formData.workAnniversary || String(formData.workAnniversary).trim() === '') setErrors(prev => ({ ...prev, workAnniversary: 'Work anniversary is required' }))
                     }}
+                    onKeyDown={(e) => e.preventDefault()}
                   />
                   {/* <CalendarDays className="absolute right-3 top-3 h-4 w-4 text-gray-400" /> */}
                 </div>
@@ -770,6 +896,7 @@ export function ContactRegistration() {
                   className="h-10"
                   value={formData.spouseName}
                   inputMode="text"
+                  maxLength={30}
                   pattern="[A-Za-z]*"
                   onChange={(e) => {
                     const value = e.target.value
@@ -798,6 +925,7 @@ export function ContactRegistration() {
                     id="children"
                     placeholder="Children's Name"
                     className="h-10 flex-1"
+                    maxLength={30}
                     value={(formData.childrensNames && formData.childrensNames[0]) || ''}
                     onChange={(e) => {
                       const value = e.target.value
@@ -846,6 +974,7 @@ export function ContactRegistration() {
                   id="college"
                   placeholder="College"
                   className="h-10"
+                  maxLength={40}
                   value={formData.college}
                   onChange={(e) => setFormData({ ...formData, college: e.target.value })}
                 />
@@ -857,6 +986,7 @@ export function ContactRegistration() {
                 <Input
                   id="degree"
                   placeholder="Degree"
+                  maxLength={25}
                   className="h-10"
                   value={formData.degree}
                   onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
@@ -871,6 +1001,7 @@ export function ContactRegistration() {
                     id="employer"
                     placeholder="Prior Employer"
                     className="h-10 flex-1"
+                    maxLength={40}
                     value={(formData.priorEmployers && formData.priorEmployers[0]) || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, priorEmployers: [e.target.value, ...(prev.priorEmployers?.slice(1) || [])] }))}
                   />
@@ -903,6 +1034,7 @@ export function ContactRegistration() {
                     className="h-10 "
                     value={formData.endDate}
                     onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                    onKeyDown={(e) => e.preventDefault()}
                   />
 
                 </div>

@@ -16,6 +16,18 @@ model User {
   createdAt DateTime @default(now())
 }
 
+
+model User {
+  id         String   @id @default(cuid())
+  firstName  String
+  lastName   String
+  email      String   @unique
+  password   String
+  ipAddress  String?
+  macAddress String?
+  createdAt  DateTime @default(now())
+}
+
 model FormSubmission {
   id               String           @id @default(cuid())
   type             String?
