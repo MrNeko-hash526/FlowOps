@@ -12,6 +12,7 @@ import { CalendarDays } from "lucide-react"
 import { ContactManagement } from "./contact-management"
 import { ArrowLeft } from "lucide-react";
 
+const api_url = process.env.NEXT_PUBLIC_API_URL;
 
 export function ContactRegistration() {
   const [formData, setFormData] = useState({
@@ -181,7 +182,7 @@ export function ContactRegistration() {
     }
 
     try {
-      const res = await fetch('http://localhost:5000/api/contact/register', {
+      const res = await fetch(`${api_url}/api/contact/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

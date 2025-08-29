@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Card, CardContent } from "./ui/card"
 import { Plus } from "lucide-react"
 
+const api_url = process.env.NEXT_PUBLIC_API_URL;
+
 export function MyUploads() {
   const [formData, setFormData] = useState({
     subject: "",
@@ -51,7 +53,7 @@ export function MyUploads() {
       data.append("files", formData.selectedFile)
       data.append("submissionId", "abc123") // <-- Use the real submissionId here
 
-      const response = await fetch("http://localhost:5000/api/upload", {
+      const response = await fetch(`${api_url}/api/upload`, {
         method: "POST",
         body: data,
       });

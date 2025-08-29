@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast"
 import * as yup from "yup"
 import { UserManagement } from "./user-management"
 
+const api_url = process.env.NEXT_PUBLIC_API_URL;
+
 type UserFormData = {
   type: string
   existingContacts: string
@@ -147,7 +149,7 @@ export function UserRegistration() {
         payload.phoneNo = `${numeric}${payload.phoneNo}`
       }
 
-      const res = await fetch("http://localhost:5000/api/form/register", {
+      const res = await fetch(`${api_url}/api/form/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
