@@ -123,9 +123,10 @@ export function ContactRegistration() {
       errs.cellNumber = "Cell number is required";
     } else if (!/^\+?\d{1,}$/.test(number)) {
       errs.cellNumber = "Must contain only digits and may start with +";
-    } else if (number.length < 12 || number.length > 13) {
-      errs.cellNumber = "Phone number must be 12–13 characters long";
     }
+    // else if (number.length < 12 || number.length > 13) {
+    //   errs.cellNumber = "Phone number must be 12–13 characters long";
+    // }
 
 
     // Zip numeric check
@@ -330,6 +331,7 @@ export function ContactRegistration() {
                   className="h-10 w-full"
                   value={formData.firstName}
                   inputMode="text"
+                  maxLength={25}
                   pattern="[A-Za-z]*"
                   onChange={(e) => {
                     const value = e.target.value
@@ -359,6 +361,7 @@ export function ContactRegistration() {
                   className="h-10 w-full"
                   value={formData.lastName}
                   inputMode="text"
+                  maxLength={15}
                   pattern="[A-Za-z]*"
                   onChange={(e) => {
                     const value = e.target.value
@@ -386,6 +389,7 @@ export function ContactRegistration() {
                   id="suffix"
                   placeholder="Suffix"
                   className="h-10 w-full"
+                  maxLength={8}
                   value={formData.suffix}
                   onChange={(e) => setFormData({ ...formData, suffix: e.target.value })}
                 />
@@ -398,6 +402,7 @@ export function ContactRegistration() {
                   id="title"
                   placeholder="Title"
                   className="h-10 w-full"
+                  maxLength={15}
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 />
@@ -425,6 +430,7 @@ export function ContactRegistration() {
                   id="goesBy"
                   placeholder="Goes By"
                   className="h-10"
+                  maxLength={8}
                   value={formData.goesBy}
                   onChange={(e) => setFormData({ ...formData, goesBy: e.target.value })}
                 />
@@ -448,6 +454,7 @@ export function ContactRegistration() {
                     id="email"
                     type="text"
                     placeholder="Email Address"
+                    maxLength={50}
                     className="h-10 flex-1 w-full"
                     value={(formData.emails && formData.emails[0]) || ''}
                     // required
@@ -495,6 +502,8 @@ export function ContactRegistration() {
                   placeholder="Office Number"
                   className="h-10"
                   value={formData.officeNumber}
+                  minLength={3}
+                  maxLength={15}
                   inputMode="numeric"
                   onChange={(e) => {
                     const digits = e.target.value.replace(/\D/g, '')
@@ -600,6 +609,7 @@ export function ContactRegistration() {
                           }`}
                         value={formData.cellNumber}
                         inputMode="numeric"
+                        minLength={6}
                         maxLength={10}
                         onChange={(e) => {
                           let val = e.target.value
@@ -623,17 +633,20 @@ export function ContactRegistration() {
                               ...prev,
                               cellNumber: "Cell number is required",
                             }))
-                          } else if (!/^\+?\d+$/.test(number)) {
+                          }
+                          else if (!/^\+?\d+$/.test(number)) {
                             setErrors((prev) => ({
                               ...prev,
                               cellNumber: "Must contain only digits and may start with +",
                             }))
-                          } else if (number.length < 12 || number.length > 13) {
-                            setErrors((prev) => ({
-                              ...prev,
-                              cellNumber: "Phone number must be 12–13 characters long",
-                            }))
-                          } else {
+                          }
+                          // else if (number.length < 10 || number.length > 12) {
+                          //   setErrors((prev) => ({
+                          //     ...prev,
+                          //     cellNumber: "Phone number must be 10 characters long",
+                          //   }))
+                          // }
+                          else {
                             setErrors((prev) => {
                               const p = { ...prev }
                               delete p.cellNumber
@@ -665,6 +678,8 @@ export function ContactRegistration() {
                   id="group"
                   placeholder="Group"
                   className="h-10"
+                  minLength={2}
+                  maxLength={10}
                   value={formData.group}
                   onChange={(e) => setFormData({ ...formData, group: e.target.value })}
                 />
@@ -683,6 +698,7 @@ export function ContactRegistration() {
                     id="address1"
                     placeholder="Address 1"
                     className="h-10 flex-1"
+                    minLength={10}
                     value={(formData.addressLines && formData.addressLines[0]) || ''}
                     onChange={(e) => {
                       setFormData(prev => ({ ...prev, addressLines: [e.target.value, ...(prev.addressLines?.slice(1) || [])] }))
@@ -775,6 +791,8 @@ export function ContactRegistration() {
                   placeholder="Zip"
                   className="h-10 w-full"
                   value={formData.zip}
+                  minLength={4}
+                  maxLength={8}
                   inputMode="numeric"
                   onChange={(e) => {
                     const digits = e.target.value.replace(/\D/g, '')
@@ -814,6 +832,7 @@ export function ContactRegistration() {
                   <Input
                     id="dob"
                     type="date"
+                    formEncType=""
                     className="h-10"
                     value={formData.dateOfBirth}
                     onChange={(e) => {
@@ -823,6 +842,7 @@ export function ContactRegistration() {
                     onBlur={() => {
                       if (!formData.dateOfBirth || String(formData.dateOfBirth).trim() === '') setErrors(prev => ({ ...prev, dateOfBirth: 'Date of birth is required' }))
                     }}
+                    onKeyDown={(e) => e.preventDefault()}
                   />
                   {/* <CalendarDays className="absolute right-3 top-3 h-4 w-4 text-gray-400" /> */}
                 </div>
@@ -845,6 +865,7 @@ export function ContactRegistration() {
                     onBlur={() => {
                       if (!formData.workAnniversary || String(formData.workAnniversary).trim() === '') setErrors(prev => ({ ...prev, workAnniversary: 'Work anniversary is required' }))
                     }}
+                    onKeyDown={(e) => e.preventDefault()}
                   />
                   {/* <CalendarDays className="absolute right-3 top-3 h-4 w-4 text-gray-400" /> */}
                 </div>
@@ -875,6 +896,7 @@ export function ContactRegistration() {
                   className="h-10"
                   value={formData.spouseName}
                   inputMode="text"
+                  maxLength={30}
                   pattern="[A-Za-z]*"
                   onChange={(e) => {
                     const value = e.target.value
@@ -903,6 +925,7 @@ export function ContactRegistration() {
                     id="children"
                     placeholder="Children's Name"
                     className="h-10 flex-1"
+                    maxLength={30}
                     value={(formData.childrensNames && formData.childrensNames[0]) || ''}
                     onChange={(e) => {
                       const value = e.target.value
@@ -951,6 +974,7 @@ export function ContactRegistration() {
                   id="college"
                   placeholder="College"
                   className="h-10"
+                  maxLength={40}
                   value={formData.college}
                   onChange={(e) => setFormData({ ...formData, college: e.target.value })}
                 />
@@ -962,6 +986,7 @@ export function ContactRegistration() {
                 <Input
                   id="degree"
                   placeholder="Degree"
+                  maxLength={25}
                   className="h-10"
                   value={formData.degree}
                   onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
@@ -976,6 +1001,7 @@ export function ContactRegistration() {
                     id="employer"
                     placeholder="Prior Employer"
                     className="h-10 flex-1"
+                    maxLength={40}
                     value={(formData.priorEmployers && formData.priorEmployers[0]) || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, priorEmployers: [e.target.value, ...(prev.priorEmployers?.slice(1) || [])] }))}
                   />
@@ -1008,6 +1034,7 @@ export function ContactRegistration() {
                     className="h-10 "
                     value={formData.endDate}
                     onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                    onKeyDown={(e) => e.preventDefault()}
                   />
 
                 </div>
